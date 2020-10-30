@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2020-10-30 16:45:24
+ * @LastEditTime: 2020-10-30 18:49:21
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \blueSpace_server\bin\hints.js
+ */
 
 const statusCode = {
     SUCCESSCODE : 200,
@@ -15,7 +23,7 @@ const hints = {
     LOGIN_PASSWORD_WRONG: { msg: "密码错误" ,code: statusCode.LOGINFAIL, },
     LOGIN_USER_NOT_EXIST: { msg: "用户不存在", code: statusCode.LOGINFAIL },
     CREATEFAIL: {msg: '创建失败', code: statusCode.ERROR},
-    FINDFAIL({data = ""}) {
+    FINDFAIL({data = {}}) {
       return {data, msg: '查询失败', code: statusCode.ERROR};
     }
     // SUBSCRIBED_ALREADY: { data: "已经关注过了", msg: ERROR },

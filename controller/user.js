@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2020-10-30 18:04:51
+ * @LastEditTime: 2020-10-30 19:12:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -11,8 +11,7 @@
 const UserModel = require("../db/dbConnect");
 const jwt = require("jsonwebtoken");
 const xss = require("node-xss").clean;
-const config = require("../bin/config");
-const dbHelper  = require('../db/dpHelper') ;
+const dbHelper = require("../db/dpHelper");
 let User = dbHelper.getModel("user");
 const hints = require("../bin/hints");
 const crypto = require("crypto");
@@ -45,6 +44,12 @@ class UserController {
    */
   async login(ctx, next) {
     try {
+      ctx.conditionalParams("username", "password");
+      ctx.verifyParams({
+        username: { type: "object", require: true },
+        password: { type: "string", require: true },
+      });
+      
       const { username, password } = xss(ctx.request.body);
       var result = await User.findOne({
         username: username,

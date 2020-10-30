@@ -8,11 +8,13 @@
  */
 const Koa = require('koa')
 const app = new Koa()
+const parameter = require('koa-parameter');
 const views = require('koa-views')
 const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
+const conditional = require('./middleware/conditionalParameters');
 const users = require('./routes/users');
 // error handler
 onerror(app)
@@ -40,5 +42,6 @@ app.use(users.routes(), users.allowedMethods())
 app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
 });
-
+app.use(conditional(app));
+app.use(parameter(app))
 module.exports = app
