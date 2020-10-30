@@ -1,4 +1,4 @@
-const { UserModel } = require('../mongoose/dbConnect')
+const { UserModel } = require('../db/dbConnect')
 
 const router = require('koa-router')()
 
