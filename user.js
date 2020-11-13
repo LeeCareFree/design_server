@@ -1,13 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2020-11-13 19:58:07
+ * @LastEditTime: 2020-10-30 19:12:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
  */
 "use strict";
 
+const UserModel = require("../db/dbConnect");
 const jwt = require("jsonwebtoken");
 const xss = require("node-xss").clean;
 const dbHelper = require("../db/dpHelper");
@@ -27,6 +28,7 @@ class UserController {
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
     this.getUserInfo = this.getUserInfo.bind(this);
+    this.userlist = this.userlist.bind(this);
   }
 
   mdsPassword(password) {
@@ -42,6 +44,12 @@ class UserController {
    */
   async login(ctx, next) {
     try {
+      ctx.conditionalParams("username", "password");
+      ctx.verifyParams({
+        username: { type: "object", require: true },
+        password: { type: "string", require: true },
+      });
+      
       const { username, password } = xss(ctx.request.body);
       var result = await User.findOne({
         username: username,
@@ -82,8 +90,6 @@ class UserController {
    */
   async register(ctx) {
     try {
-      console.log(11,ctx.request)
-      ctx.append('content-type', 'application/json')
       let { username, password } = xss(ctx.request.body);
       const result = await User.findOne({
         username: username,
@@ -100,7 +106,7 @@ class UserController {
             data: {
               username: username,
             },
-            msg: "注册成功！",
+            msg: "注册成功",
           });
         }
       }
@@ -119,25 +125,44 @@ class UserController {
    */
   async getUserInfo(ctx) {
     try {
-      const { name } = ctx.state.user;
-      const result = await User.findOne({
-        username: name,
+      console.log(ctx.state.user);
+      const { id, user } = ctx.state;
+      const result = await UserModel.findUser({
+        _id: id,
+        user: user,
       });
-      if (result) {
-        ctx.body = hints.SUCCESS({
-          data: result,
-          msg: "获取用户信息成功！"
-        })
+      console.log(result);
+      if (result[0] && result[0].isadmin) {
+        ctx.body = {
+          code: 0,
+          desc: User.SUCCESS,
+          data: result[0],
+        };
       } else {
         ctx.body = {
           code: 1,
-          msg: User.USER_LOGIN,
+          desc: User.USER_LOGIN,
         };
       }
     } catch (err) {
-      ctx.body = hints.FINDFAIL({
-        data: err,
-      });
+      ctx.throw(err);
+    }
+  }
+
+  /**
+   * 获取用户列表
+   * @param {*} ctx
+   * @param {*} next
+   */
+  async userlist(ctx) {
+    try {
+      let data = await UserModel.findUser({});
+      ctx.body = {
+        code: 0,
+        desc: User.SUCCESS,
+        data: data,
+      };
+    } catch (err) {
       ctx.throw(err);
     }
   }

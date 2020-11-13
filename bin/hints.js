@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 16:45:24
- * @LastEditTime: 2020-10-30 18:49:21
- * @LastEditors: your name
+ * @LastEditTime: 2020-11-13 14:39:30
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\bin\hints.js
  */
@@ -11,21 +11,25 @@ const statusCode = {
     SUCCESSCODE : 200,
     EXIST       : 304,
     ERROR       : 500, 
+    NOT_FOUND: 404,
     LOGINFAIL   : 401
+
  };
 
 const hints = {
-    ERROR : {msg : '服务异常',code: statusCode.ERROR, },
-    REGISTER_UNAVAILABLE: { msg: "该用户名已被占用" , code: statusCode.EXIST},
+    ERROR : {msg : '服务异常！',code: statusCode.ERROR, },
+    NOT_FOUND: {msg: "404", code: statusCode.NOT_FOUND},
+    REGISTER_UNAVAILABLE: { msg: "该用户名已被占用！" , code: statusCode.EXIST},
     SUCCESS({data = "", msg}) {
       return { data, msg: msg, code : statusCode.SUCCESSCODE};
     },
-    LOGIN_PASSWORD_WRONG: { msg: "密码错误" ,code: statusCode.LOGINFAIL, },
-    LOGIN_USER_NOT_EXIST: { msg: "用户不存在", code: statusCode.LOGINFAIL },
-    CREATEFAIL: {msg: '创建失败', code: statusCode.ERROR},
+    LOGIN_PASSWORD_WRONG: { msg: "密码错误！" ,code: statusCode.LOGINFAIL, },
+    LOGIN_USER_NOT_EXIST: { msg: "用户不存在！", code: statusCode.LOGINFAIL },
+    CREATEFAIL: {msg: '创建失败！', code: statusCode.ERROR},
     FINDFAIL({data = {}}) {
-      return {data, msg: '查询失败', code: statusCode.ERROR};
-    }
+      return {data, msg: '查询失败！', code: statusCode.ERROR};
+    },
+    TOKEN_EXPIRE: {msg: "token失效，请重新登录！", code: statusCode.LOGINFAIL},
     // SUBSCRIBED_ALREADY: { data: "已经关注过了", msg: ERROR },
     // ADDSUB_SUCCESS: { data: "添加关注成功", msg: SUCCESS },
     // NOT_SUBSCRIBED: { data: "没有关注", msg: ERROR },

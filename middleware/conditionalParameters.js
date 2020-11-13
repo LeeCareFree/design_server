@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 18:36:11
- * @LastEditTime: 2020-10-30 19:14:25
+ * @LastEditTime: 2020-11-13 17:32:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\middleware\conditionalParameters.js
@@ -12,7 +12,7 @@
 module.exports = function (app) {
 
   app.context.conditionalParams = function(...params) {
-    console.log(params)
+    // console.log(params)
     let obj = ['GET', 'HEAD'].includes(this.method.toUpperCase())
       ? JSON.parse(JSON.stringify(this.request.query))
       : this.request.body;
