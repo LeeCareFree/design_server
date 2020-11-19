@@ -13,7 +13,6 @@ const statusCode = {
     ERROR       : 500, 
     NOT_FOUND: 404,
     LOGINFAIL   : 401
-
  };
 
 const hints = {
@@ -29,7 +28,8 @@ const hints = {
     FINDFAIL({data = {}}) {
       return {data, msg: '查询失败！', code: statusCode.ERROR};
     },
-    TOKEN_EXPIRE: {msg: "token失效，请重新登录！", code: statusCode.LOGINFAIL},
+    TOKEN_EXPIRED: {msg: "token过期，请重新登录！", code: statusCode.LOGINFAIL},
+    TOKEN_INVALID: {msg: "token失效，请重新登录！", code: statusCode.LOGINFAIL},
     // SUBSCRIBED_ALREADY: { data: "已经关注过了", msg: ERROR },
     // ADDSUB_SUCCESS: { data: "添加关注成功", msg: SUCCESS },
     // NOT_SUBSCRIBED: { data: "没有关注", msg: ERROR },

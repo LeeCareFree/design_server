@@ -82,7 +82,6 @@ class UserController {
    */
   async register(ctx) {
     try {
-      console.log(11,ctx.request)
       ctx.append('content-type', 'application/json')
       let { username, password } = xss(ctx.request.body);
       const result = await User.findOne({

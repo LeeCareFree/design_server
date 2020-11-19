@@ -37,12 +37,12 @@ app.use(require('koa-static')(__dirname + '/public'))
 app.use(views(__dirname + '/views', {
   extension: 'ejs'
 }))
+app.use(checkToken());
 app.use(jwtKoa({
   secret: secret
 }).unless({
   path: [/^\/api\/users\/login/,/^\/api\/users\/register/]
 }));
-app.use(checkToken());
 // logger
 app.use(async (ctx, next) => {
   const start = new Date()

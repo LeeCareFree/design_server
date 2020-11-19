@@ -8,7 +8,7 @@
  */
 module.exports = {
     db: {
-        mongodb:'mongodb://localhost/bluespace',
+        mongodb:'mongodb://root:lee&tao@8.129.214.128:27017/bluespace?authSource=admin',
     },
     secret: 'lee',
     port: process.env.port || '3000',

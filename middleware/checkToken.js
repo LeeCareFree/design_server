@@ -25,18 +25,18 @@ module.exports = function () {
             id: payload.id,
           };
         } catch (err) {
-          console.log("token验证失败", err);
+          if (err.name == "TokenExpiredError") {
+            //token过期
+            throw err = hints.TOKEN_EXPIRED;
+          } else if (err.name == "JsonWebTokenError") {
+            //无效的token
+            throw err = hints.TOKEN_INVALID;
+          }
         }
       }
       await next();
     } catch (err) {
-      if (err.status == 401) {
-        ctx.status = 401;
-        ctx.body = hints.TOKEN_EXPIRED;
-      } else {
-        ctx.status = 404;
-        ctx.body = hints.NOT_FOUND;
-      }
+        ctx.body = err;
     }
   };
 };
