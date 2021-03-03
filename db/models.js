@@ -9,7 +9,22 @@
 module.exports = {
 	//用户表
 	user : {
+		uid: String,
 		username : String,
-		password : String
+		password : String,
+		avatar: String
 	},
+	// 首页
+	home : {
+		title: String,
+		detail: String,
+		imgList: Array, // 图片列表
+		like: Number, // 喜欢
+		coll: Number, // 收藏
+		doorModel: String, // 户型 三室
+		area: Number, // 面积
+		cost: String, // 花费
+		location: String, // 地区
+		uid: String
+	}
 };

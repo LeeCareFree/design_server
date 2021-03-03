@@ -14,6 +14,7 @@ const dbHelper = require("../db/dpHelper");
 let User = dbHelper.getModel("user");
 const hints = require("../bin/hints");
 const crypto = require("crypto");
+const uuid = require('node-uuid')
 /**
  * user Controller
  * Post login
@@ -24,6 +25,7 @@ const crypto = require("crypto");
 class UserController {
   constructor() {
     this.secret = "lee"; // 定义签名
+    this.defaultAvatar = 'http://localhost:4000/avatar/avatar.jpg';
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
     this.getUserInfo = this.getUserInfo.bind(this);
@@ -93,6 +95,8 @@ class UserController {
         const result = await User.create({
           username: username,
           password: new UserController().mdsPassword(password),
+          avatar: this.defaultAvatar,
+          uid: uuid.v4()
         });
         if (result) {
           ctx.body = hints.SUCCESS({

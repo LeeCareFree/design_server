@@ -24,7 +24,9 @@ const hints = {
     },
     LOGIN_PASSWORD_WRONG: { msg: "密码错误！" ,code: statusCode.LOGINFAIL, },
     LOGIN_USER_NOT_EXIST: { msg: "用户不存在！", code: statusCode.LOGINFAIL },
-    CREATEFAIL: {msg: '创建失败！', code: statusCode.ERROR},
+    CREATEFAIL({data = {}}) {
+      return {data, msg: '创建失败！', code: statusCode.ERROR}
+    },
     FINDFAIL({data = {}}) {
       return {data, msg: '查询失败！', code: statusCode.ERROR};
     },
