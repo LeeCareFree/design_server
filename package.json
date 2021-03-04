@@ -38,6 +38,7 @@
     "util": "^0.12.3"
   },
   "devDependencies": {
+    "node-uuid": "^1.4.8",
     "nodemon": "^1.19.1"
   }
 }
