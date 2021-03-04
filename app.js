@@ -16,6 +16,7 @@ const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 const conditional = require('./middleware/conditionalParameters');
 const users = require('./routes/users');
+const home = require('./routes/home');
 const jwtKoa = require('koa-jwt');
 const {secret} = require('./bin/config');
 const checkToken  = require('./middleware/checkToken');
@@ -50,7 +51,10 @@ app.use(async (ctx, next) => {
   const ms = new Date() - start;
   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
 })
+
 app.use(users.routes(), users.allowedMethods())
+app.use(home.routes(), home.allowedMethods())
+
 // error-handling
 app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
