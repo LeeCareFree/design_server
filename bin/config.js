@@ -12,4 +12,5 @@ module.exports = {
     },
     secret: 'lee',
     port: process.env.port || '3000',
+    localPath: 'D:\\GraduationDesign'
 }
