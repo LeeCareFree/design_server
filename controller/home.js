@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-01-06 11:48:27
+ * @LastEditTime: 2021-03-08 12:37:27
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \design_server\controller\home.js
+ */
 const dbHelper = require("../db/dpHelper");
 const Home = dbHelper.getModel("home");
 const hints = require("../bin/hints");
@@ -39,7 +47,7 @@ class HomeController {
       const result = await Home.create({
         title,
         detail,
-        imgList: imgList || 'http://127.0.0.1:4000/indexImg/1.jpeg',
+        imgList: imgList,
         doorModel,
         area,
         cost,
