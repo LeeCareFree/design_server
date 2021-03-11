@@ -13,7 +13,7 @@ const addToken = (userinfo) => {
   const token = jwt.sign(
     {
       username: userinfo.username,
-      id: userinfo.id,
+      uid: userinfo.uid,
     },
     secret,
     { expiresIn: "7d" }

@@ -12,6 +12,6 @@ const User = new Router();
 
 User.post('/api/users/login',  UserController.login);
 User.post('/api/users/register',  UserController.register);
-User.get('/api/users/userinfo',  UserController.getUserInfo);
+User.get('/api/users/accountInfo',  UserController.getAccountInfo);
 
 module.exports = User

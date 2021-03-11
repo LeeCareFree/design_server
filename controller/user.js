@@ -25,10 +25,10 @@ const uuid = require('node-uuid')
 class UserController {
   constructor() {
     this.secret = "lee"; // 定义签名
-    this.defaultAvatar = 'http://localhost:4000/avatar/avatar.jpg';
+    this.defaultAvatar = 'http://192.168.0.103:3000/imgs/avatar.jpg';
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
-    this.getUserInfo = this.getUserInfo.bind(this);
+    this.getAccountInfo = this.getAccountInfo.bind(this);
   }
 
   mdsPassword(password) {
@@ -49,12 +49,14 @@ class UserController {
         username: username,
       });
       if (result) {
+        const { uid } = result;
         if (this.mdsPassword(password) != result.password) {
           ctx.body = hints.LOGIN_PASSWORD_WRONG;
         } else {
           const token = jwt.sign(
             {
               name: username,
+              uid: uid
             },
             this.secret,
             {
@@ -63,7 +65,9 @@ class UserController {
           );
           ctx.body = hints.SUCCESS({
             data: {
-              username: username,
+              username: result.username,
+              avatar: this.defaultAvatar,
+              uid: result.uid,
               token: token,
             },
             msg: "登录成功",
@@ -102,6 +106,8 @@ class UserController {
           ctx.body = hints.SUCCESS({
             data: {
               username: username,
+              avatar: this.defaultAvatar,
+              uid: uid
             },
             msg: "注册成功！",
           });
@@ -120,11 +126,11 @@ class UserController {
    * @param {*} ctx
    * @param {*} next
    */
-  async getUserInfo(ctx) {
+  async getAccountInfo(ctx) {
     try {
-      const { name } = ctx.state.user;
+      const { uid } = ctx.state.user;
       const result = await User.findOne({
-        username: name,
+        uid: uid
       });
       if (result) {
         ctx.body = hints.SUCCESS({
