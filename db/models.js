@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2020-11-13 15:46:13
+ * @LastEditTime: 2021-03-10 19:16:15
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -14,7 +14,7 @@ module.exports = {
 		password : String,
 		avatar: String
 	},
-	// 首页
+	// 发布作品
 	home : {
 		title: String,
 		detail: String,
@@ -26,5 +26,21 @@ module.exports = {
 		cost: String, // 花费
 		location: String, // 地区
 		uid: String
+	},
+	publish: {
+		type: String, // 1-文章，2-图片，3-视频
+		pid: String,
+		uid: String,
+		title: String,
+		detail: String,
+		imgList: Array, // 图片列表（图片）
+		coverImg: String, // 封面（文章）
+		spaceObj: Object, // 图文（文章用到）
+		like: Number, // 喜欢
+		coll: Number, // 收藏
+		doorModel: String, // 户型 三室
+		area: String, // 面积
+		cost: String, // 花费
+		location: String, // 地区
 	}
 };

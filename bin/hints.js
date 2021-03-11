@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 16:45:24
- * @LastEditTime: 2020-11-13 14:39:30
+ * @LastEditTime: 2021-03-11 11:13:53
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\bin\hints.js
@@ -12,7 +12,8 @@ const statusCode = {
     EXIST       : 304,
     ERROR       : 500, 
     NOT_FOUND: 404,
-    LOGINFAIL   : 401
+    LOGINFAIL   : 401,
+    PUBLISHFAIL : 506
  };
 
 const hints = {
@@ -32,6 +33,7 @@ const hints = {
     },
     TOKEN_EXPIRED: {msg: "token过期，请重新登录！", code: statusCode.LOGINFAIL},
     TOKEN_INVALID: {msg: "token无效，请重新登录！", code: statusCode.LOGINFAIL},
+    PUBLISH_NOT_EXIST: {msg: "发布不存在!", code: statusCode.PUBLISHFAIL}
     // SUBSCRIBED_ALREADY: { data: "已经关注过了", msg: ERROR },
     // ADDSUB_SUCCESS: { data: "添加关注成功", msg: SUCCESS },
     // NOT_SUBSCRIBED: { data: "没有关注", msg: ERROR },
