@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-08 12:22:42
+ * @LastEditTime: 2021-03-10 15:48:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\app.js
@@ -18,6 +18,7 @@ const conditional = require('./middleware/conditionalParameters');
 const users = require('./routes/users');
 const home = require('./routes/home');
 const upload = require('./routes/upload');
+const publish = require('./routes/publish')
 const jwtKoa = require('koa-jwt');
 const {secret} = require('./bin/config');
 const checkToken  = require('./middleware/checkToken');
@@ -59,12 +60,12 @@ app.use(require('koa-static')(__dirname + '/public'))
 app.use(views(__dirname + '/views', {
   extension: 'ejs'
 }))
-app.use(checkToken());
-app.use(jwtKoa({
-  secret: secret
-}).unless({
-  path: [/^\/api\/users\/login/,/^\/api\/users\/register/,/^\/upload\/*/]
-}));
+// app.use(checkToken());
+// app.use(jwtKoa({
+//   secret: secret
+// }).unless({
+//   path: [/^\/api\/users\/login/,/^\/api\/users\/register/,/^\/upload\/*/]
+// }));
 
 app.use(koaBody({
   multipart: true,
@@ -95,6 +96,7 @@ app.use(async (ctx, next) => {
 app.use(users.routes(), users.allowedMethods())
 app.use(home.routes(), home.allowedMethods())
 app.use(upload.routes())
+app.use(publish.routes(), publish.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {
