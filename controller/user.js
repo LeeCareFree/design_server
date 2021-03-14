@@ -25,7 +25,7 @@ const uuid = require('node-uuid')
 class UserController {
   constructor() {
     this.secret = "lee"; // 定义签名
-    this.defaultAvatar = 'http://192.168.0.103:3000/imgs/avatar.jpg';
+    this.defaultAvatar = 'http://192.168.0.105:3000/imgs/avatar.jpg';
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
     this.getAccountInfo = this.getAccountInfo.bind(this);
@@ -60,7 +60,7 @@ class UserController {
             },
             this.secret,
             {
-              expiresIn: 60000, //秒到期时间
+              expiresIn: "7d", //到期时间
             }
           );
           ctx.body = hints.SUCCESS({

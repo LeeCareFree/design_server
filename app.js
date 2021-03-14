@@ -18,14 +18,15 @@ const conditional = require('./middleware/conditionalParameters');
 const users = require('./routes/users');
 const home = require('./routes/home');
 const upload = require('./routes/upload');
-const publish = require('./routes/publish')
+const article = require('./routes/article')
 const jwtKoa = require('koa-jwt');
 const {secret} = require('./bin/config');
 const checkToken  = require('./middleware/checkToken');
 const db = require('./db/dbConnect')
 const path = require('path')
 const koaBody = require('koa-body')
-const cors = require('koa2-cors')
+const cors = require('koa2-cors');
+const token = require('./routes/token')
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
@@ -64,15 +65,9 @@ app.use(views(__dirname + '/views', {
 app.use(jwtKoa({
   secret: secret
 }).unless({
-  path: [/^\/api\/users\/login/,/^\/api\/users\/register/]
+  path: [/^\/api\/users\/login/,/^\/api\/users\/register/,/^\/api\/token\/*/]
 }));
 app.use(checkToken());
-// app.use(checkToken());
-// app.use(jwtKoa({
-//   secret: secret
-// }).unless({
-//   path: [/^\/api\/users\/login/,/^\/api\/users\/register/,/^\/upload\/*/]
-// }));
 
 app.use(koaBody({
   multipart: true,
@@ -103,7 +98,9 @@ app.use(async (ctx, next) => {
 app.use(users.routes(), users.allowedMethods())
 app.use(home.routes(), home.allowedMethods())
 app.use(upload.routes())
-app.use(publish.routes(), publish.allowedMethods())
+app.use(article.routes(), article.allowedMethods())
+// 检查token路由
+app.use(token.routes(), token.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {
