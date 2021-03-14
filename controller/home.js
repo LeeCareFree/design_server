@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2021-01-06 11:48:27
- * @LastEditTime: 2021-03-08 12:37:27
- * @LastEditors: your name
+ * @LastEditTime: 2021-03-14 13:17:42
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\home.js
  */
@@ -21,7 +21,16 @@ class HomeController {
    */
   async getSlideShow(ctx, next) {
     try {
-      const result = await Home.find(null, {title: 1, imgList: 1, _id: 0}).sort({_id: -1}).limit(3)
+      const result = await Home.find(null, {title: 1, imgList: 1, _id: 0}).sort({_id: -1}).limit(3).then((res) => {
+          let reValue = []
+          res.forEach((item) => {
+            reValue.push({
+              img: item.imgList[0],
+              title: item.title
+            })
+          })
+          return reValue
+        })
       if(result) {
         ctx.body = hints.SUCCESS({
           data: result,
@@ -36,31 +45,6 @@ class HomeController {
     }
   }
 
-  /**
-   * 创建文章
-   */
-  async createArticle(ctx) {
-    try {
-      let { 
-        title, detail, imgList, doorModel, area, cost, location 
-      } = xss(ctx.request.body)
-      const result = await Home.create({
-        title,
-        detail,
-        imgList: imgList,
-        doorModel,
-        area,
-        cost,
-        location,
-        like,
-      })
-    } catch (err) {
-      ctx.body = hints.CREATEFAIL({
-        data: err
-      })
-      ctx.throw(err);
-    }
-  }
 }
 
 module.exports = new HomeController();
