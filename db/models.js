@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-03-10 19:16:15
+ * @LastEditTime: 2021-03-15 15:56:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -11,8 +11,9 @@ module.exports = {
 	user: {
 		uid: String,
 		username: String,
+		nickname: String,
 		password: String,
-		avatar: String
+		avatar: String,
 	},
 	// 发布作品
 	home: {
@@ -33,8 +34,6 @@ module.exports = {
 		uid: String,
 		title: String,
 		detail: String,
-		username: String,
-		avatar: String,
 		imgList: Array, // 图片列表（图片）
 		coverImg: String, // 封面（文章）
 		spaceObj: Object, // 图文（文章用到）
