@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
     models = require('./models');
 
 for (var m in models) {
-    mongoose.model(m, new Schema(models[m]));
+    mongoose.model(m, new Schema(models[m],{versionKey: false}));
 }
 module.exports = {
     getModel: function (type) {

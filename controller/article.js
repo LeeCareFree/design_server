@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-11 11:30:47
+ * @LastEditTime: 2021-03-15 17:19:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -24,9 +24,15 @@ class ArticleController {
       const files = ctx.request.files['files[]']
       let url, result
       let {
-        type, uid, title, detail, username, avatar,
+        type, uid, title, detail,
         like = 0, coll = 0, comments = [], doorModel, area, cost, location
       } = ctx.request.body
+
+      if(!type || !uid || !title || !detail) {
+        return ctx.body = hints.CREATEFAIL({
+          data: '必传值未传'
+        })
+      }
 
       url = uploadFilePublic(ctx, files)
 
@@ -41,8 +47,6 @@ class ArticleController {
         like, // 喜欢
         coll, // 收藏
         comments,
-        username,
-        avatar
       }
       // 创建文章形式
       if (type === '1') {
@@ -92,6 +96,40 @@ class ArticleController {
     } else {
       return ctx.body = hints.ARTICLE_NOT_EXIST
     }
+  }
+
+  async getArticleList(ctx) {
+    let result = await Article.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: "uid",
+          foreignField: "uid",
+          as: "user",
+        }
+      },
+      {$unwind: "$user"},
+      {
+        $project: {
+          _id: 0,
+          __v: 0,
+          uid: 0,
+          "user._id": 0,
+          "user.__v": 0,
+          "user.password": 0
+        }
+      }
+    ])
+    if(result) {
+      ctx.body = hints.SUCCESS({
+        data: result,
+        msg: '获取文章列表成功'
+      })
+    } else {
+      ctx.body = hints.FINDFAIL()
+    }
+    
+    // console.log(result)
   }
 }
 
