@@ -1,18 +1,19 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-16 13:54:46
+ * @LastEditTime: 2021-03-16 20:39:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
  */
-const dbHelper = require("../db/dpHelper");
-let Article = dbHelper.getModel("article");
-const uuid = require('node-uuid');
-const hints = require("../bin/hints");
+const dbHelper = require('../db/dpHelper')
+let Article = dbHelper.getModel('article')
+let Comment = dbHelper.getModel('comment')
+const uuid = require('node-uuid')
+const hints = require('../bin/hints')
 
-const { uploadFilePublic, deleteFilePublic } = require('../utils/utils');
-const User = require("../routes/users");
+const { uploadFilePublic, deleteFilePublic } = require('../utils/utils')
+const User = require('../routes/users')
 
 class ArticleController {
   /**
@@ -24,14 +25,22 @@ class ArticleController {
       const files = ctx.request.files['files[]']
       let url, result
       let {
-        type, uid, title, detail,
-        like = 0, coll = 0, doorModel, area, cost, location
+        type,
+        uid,
+        title,
+        detail,
+        like = 0,
+        coll = 0,
+        doorModel,
+        area,
+        cost,
+        location,
       } = ctx.request.body
 
-      if(!type || !uid || !title || !detail) {
-        return ctx.body = hints.CREATEFAIL({
-          data: '必传值未传'
-        })
+      if (!type || !uid || !title || !detail) {
+        return (ctx.body = hints.CREATEFAIL({
+          data: '必传值未传',
+        }))
       }
 
       url = uploadFilePublic(ctx, files)
@@ -50,20 +59,29 @@ class ArticleController {
       // 创建文章形式
       if (type === '1') {
         newValue = Object.assign(newValue, {
-          doorModel, area, cost, location
+          doorModel,
+          area,
+          cost,
+          location,
         })
         result = await Article.create(newValue)
-      } else if (type === '2') { // 图片形式
+      } else if (type === '2') {
+        // 图片形式
         result = await Article.create(newValue)
       }
 
       if (result) {
         ctx.body = hints.SUCCESS({
           data: newValue,
-          msg: "发布成功",
+          msg: '发布成功',
+        })
+        // 评论表
+        await Comment.create({
+          aid,
+          cid: uuid.v4(),
+          comlist: [],
         })
       }
-
     } catch (error) {
       console.log(error)
     }
@@ -72,11 +90,12 @@ class ArticleController {
   async delArticle(ctx) {
     let imgList
     let { aid } = ctx.request.body
+
     let article = await Article.findOne({ aid: aid })
     if (article) {
       imgList = article.imgList
     } else {
-      return ctx.body = hints.ARTICLE_NOT_EXIST
+      return (ctx.body = hints.ARTICLE_NOT_EXIST)
     }
 
     deleteFilePublic(imgList)
@@ -88,12 +107,73 @@ class ArticleController {
   }
 
   async queryArticle(ctx) {
-    let { aid } = ctx.request.body;
-    let articleResult = await Article.findOne({ aid: aid });
-    if (articleResult) {
-      ctx.body = hints.SUCCESS({ data: articleResult, msg: '文章查询成功！' })
+    let { aid } = ctx.request.body
+    let articleResult = await Article.aggregate([
+      {
+        $match: { aid: aid},
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'uid',
+          foreignField: 'uid',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          _id: 0,
+          __v: 0,
+          uid: 0,
+          'user._id': 0,
+          'user.__v': 0,
+          'user.password': 0,
+          "comments._id": 0,
+        },
+      },
+    ])
+
+    // 查评论表
+    let commentResult = await Comment.aggregate([
+      {
+        $match: { aid: aid},
+      },
+      {
+        $unwind: "$comlist"
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'comlist.uid',
+          foreignField: 'uid',
+          as: 'comlist.user',
+        },
+      },
+      { $unwind: "$comlist.user" },
+      { $group: {
+          _id: "$_id",
+          comlist: { $push: "$comlist" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          "comlist.user._id": 0,
+          "comlist.user.password": 0,
+          "comlist.user.__v": 0,
+        }
+      }
+    ])
+    
+    if (articleResult.length) {
+      let article = articleResult[0]
+      let comments = commentResult.length ? commentResult[0].comlist : commentResult
+      // 将查询的评论表添加入文章中
+      article['comments'] = comments 
+      ctx.body = hints.SUCCESS({ data: article, msg: '文章查询成功！' })
     } else {
-      return ctx.body = hints.ARTICLE_NOT_EXIST
+      return (ctx.body = hints.ARTICLE_NOT_EXIST)
     }
   }
 
@@ -102,34 +182,34 @@ class ArticleController {
       {
         $lookup: {
           from: 'users',
-          localField: "uid",
-          foreignField: "uid",
-          as: "user",
-        }
+          localField: 'uid',
+          foreignField: 'uid',
+          as: 'user',
+        },
       },
-      {$unwind: "$user"},
+      { $unwind: '$user' },
       {
         $project: {
           _id: 0,
           __v: 0,
           uid: 0,
-          "user._id": 0,
-          "user.__v": 0,
-          "user.password": 0
-        }
-      }
+          'user._id': 0,
+          'user.__v': 0,
+          'user.password': 0,
+        },
+      },
     ])
-    if(result) {
+    if (result) {
       ctx.body = hints.SUCCESS({
         data: result,
-        msg: '获取文章列表成功'
+        msg: '获取文章列表成功',
       })
     } else {
       ctx.body = hints.FINDFAIL()
     }
-    
+
     // console.log(result)
   }
 }
 
-module.exports = new ArticleController();
+module.exports = new ArticleController()

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 16:45:24
- * @LastEditTime: 2021-03-14 15:20:58
+ * @LastEditTime: 2021-03-16 20:44:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\bin\hints.js
@@ -13,7 +13,8 @@ const statusCode = {
   ERROR: 500,
   NOT_FOUND: 404,
   LOGINFAIL: 401,
-  ARTICLE_FAIL: 506
+  ARTICLE_FAIL: 506,
+  COMMENT_FAIL: 507
 };
 
 const hints = {
@@ -34,7 +35,10 @@ const hints = {
   TOKEN_EXPIRED: { msg: "token过期，请重新登录！", code: statusCode.LOGINFAIL },
   TOKEN_INVALID: { msg: "token无效，请重新登录！", code: statusCode.LOGINFAIL },
   TOKEN_NOEXIST: { msg: "token不存在，请登录！", code: statusCode.LOGINFAIL },
-  ARTICLE_NOT_EXIST: { msg: "文章不存在!", code: statusCode.ARTICLE_FAIL }
+  ARTICLE_NOT_EXIST: { msg: "文章不存在!", code: statusCode.ARTICLE_FAIL },
+  COMMENT_FAIL: {msg: "评论失败！", code: statusCode.COMMENT_FAIL},
+  COMMENT_DEL_FAIL: {msg: "删除评论失败！不存在这条评论或已删除", code: statusCode.COMMENT_FAIL},
+  COMMENT_NO_FAIL: {msg: "aid,uid或content参数未传", code: statusCode.COMMENT_FAIL}
   // SUBSCRIBED_ALREADY: { data: "已经关注过了", msg: ERROR },
   // ADDSUB_SUCCESS: { data: "添加关注成功", msg: SUCCESS },
   // NOT_SUBSCRIBED: { data: "没有关注", msg: ERROR },
