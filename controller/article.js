@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-15 17:19:10
+ * @LastEditTime: 2021-03-16 13:54:46
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -25,7 +25,7 @@ class ArticleController {
       let url, result
       let {
         type, uid, title, detail,
-        like = 0, coll = 0, comments = [], doorModel, area, cost, location
+        like = 0, coll = 0, doorModel, area, cost, location
       } = ctx.request.body
 
       if(!type || !uid || !title || !detail) {
@@ -46,7 +46,6 @@ class ArticleController {
         imgList: url, // 图片列表（图片）
         like, // 喜欢
         coll, // 收藏
-        comments,
       }
       // 创建文章形式
       if (type === '1') {
