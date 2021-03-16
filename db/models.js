@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-03-16 13:54:18
+ * @LastEditTime: 2021-03-16 16:13:57
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -43,5 +43,9 @@ module.exports = {
 		area: String, // 面积
 		cost: String, // 花费
 		location: String, // 地区
+	},
+	comment: {
+		aid: String,
+		comlist: Array
 	}
 };
