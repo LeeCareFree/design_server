@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-15 17:19:47
+ * @LastEditTime: 2021-03-16 13:48:33
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -25,7 +25,7 @@ const uuid = require('node-uuid')
 class UserController {
   constructor() {
     this.secret = "lee"; // 定义签名
-    this.defaultAvatar = 'http://localhost:3000/imgs/avatar.jpg';
+    this.defaultAvatar = 'http://192.168.0.105:3000/imgs/avatar.jpg';
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
     this.getAccountInfo = this.getAccountInfo.bind(this);

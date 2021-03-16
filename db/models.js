@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-03-15 15:56:52
+ * @LastEditTime: 2021-03-16 13:54:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -39,7 +39,6 @@ module.exports = {
 		spaceObj: Object, // 图文（文章用到）
 		like: Number, // 喜欢
 		coll: Number, // 收藏
-		comments: Array,
 		doorModel: String, // 户型 三室
 		area: String, // 面积
 		cost: String, // 花费
