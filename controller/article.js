@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-16 20:39:38
+ * @LastEditTime: 2021-03-17 12:40:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -94,6 +94,8 @@ class ArticleController {
     let article = await Article.findOne({ aid: aid })
     if (article) {
       imgList = article.imgList
+      // 删除评论文档
+      await Comment.remove({ aid: aid })
     } else {
       return (ctx.body = hints.ARTICLE_NOT_EXIST)
     }
@@ -102,7 +104,7 @@ class ArticleController {
 
     let result = await Article.deleteOne({ aid: aid })
     if (result) {
-      ctx.body = hints.SUCCESS({ msg: '删除作品成功' })
+      ctx.body = hints.SUCCESS({ msg: '删除文章成功' })
     }
   }
 
@@ -110,7 +112,7 @@ class ArticleController {
     let { aid } = ctx.request.body
     let articleResult = await Article.aggregate([
       {
-        $match: { aid: aid},
+        $match: { aid: aid },
       },
       {
         $lookup: {
@@ -129,7 +131,7 @@ class ArticleController {
           'user._id': 0,
           'user.__v': 0,
           'user.password': 0,
-          "comments._id": 0,
+          'comments._id': 0,
         },
       },
     ])
@@ -137,10 +139,10 @@ class ArticleController {
     // 查评论表
     let commentResult = await Comment.aggregate([
       {
-        $match: { aid: aid},
+        $match: { aid: aid },
       },
       {
-        $unwind: "$comlist"
+        $unwind: '$comlist',
       },
       {
         $lookup: {
@@ -150,27 +152,30 @@ class ArticleController {
           as: 'comlist.user',
         },
       },
-      { $unwind: "$comlist.user" },
-      { $group: {
-          _id: "$_id",
-          comlist: { $push: "$comlist" }
-        }
+      { $unwind: '$comlist.user' },
+      {
+        $group: {
+          _id: '$_id',
+          comlist: { $push: '$comlist' },
+        },
       },
       {
         $project: {
           _id: 0,
-          "comlist.user._id": 0,
-          "comlist.user.password": 0,
-          "comlist.user.__v": 0,
-        }
-      }
+          'comlist.user._id': 0,
+          'comlist.user.password': 0,
+          'comlist.user.__v': 0,
+        },
+      },
     ])
-    
+
     if (articleResult.length) {
       let article = articleResult[0]
-      let comments = commentResult.length ? commentResult[0].comlist : commentResult
+      let comments = commentResult.length
+        ? commentResult[0].comlist
+        : commentResult
       // 将查询的评论表添加入文章中
-      article['comments'] = comments 
+      article['comments'] = comments
       ctx.body = hints.SUCCESS({ data: article, msg: '文章查询成功！' })
     } else {
       return (ctx.body = hints.ARTICLE_NOT_EXIST)

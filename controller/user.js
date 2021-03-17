@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-16 13:48:33
+ * @LastEditTime: 2021-03-17 14:40:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -66,6 +66,7 @@ class UserController {
           ctx.body = hints.SUCCESS({
             data: {
               username: result.username,
+              nickname: result.nickname,
               avatar: this.defaultAvatar,
               uid: result.uid,
               token: token,

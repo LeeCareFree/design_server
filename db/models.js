@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-03-16 16:13:57
+ * @LastEditTime: 2021-03-17 14:11:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -14,6 +14,26 @@ module.exports = {
 		nickname: String,
 		password: String,
 		avatar: String,
+		likeArr: {
+			type: Array,
+			default: []
+		},
+		collArr: {
+			type: Array,
+			default: []
+		},
+		articleArr: {
+			type: Array,
+			default: []
+		},
+		followArr: {
+			type: Array,
+			default: []
+		},
+		fansArr: {
+			type: Array,
+			default: []
+		}
 	},
 	// 发布作品
 	home: {
@@ -43,6 +63,10 @@ module.exports = {
 		area: String, // 面积
 		cost: String, // 花费
 		location: String, // 地区
+		createtime: {
+			type: Date,
+			default: Date.now
+		}
 	},
 	comment: {
 		aid: String,
