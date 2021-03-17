@@ -25,7 +25,7 @@ const uuid = require('node-uuid')
 class UserController {
   constructor() {
     this.secret = "lee"; // 定义签名
-    this.defaultAvatar = 'http://192.168.0.105:3000/imgs/avatar.jpg';
+    this.defaultAvatar = 'http://192.168.0.105:3000/avatar/lee.jpg';
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
     this.getAccountInfo = this.getAccountInfo.bind(this);
