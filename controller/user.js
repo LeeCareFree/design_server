@@ -228,7 +228,7 @@ class UserController {
         )
         await Article.find({ aid }).update(
           {
-            coll: { $gt: 0 },
+            like: { $gt: 0 },
           },
           { $inc: { like: -1 } }
         )
