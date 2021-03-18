@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-17 15:02:47
+ * @LastEditTime: 2021-03-17 15:46:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -12,7 +12,7 @@ let Comment = dbHelper.getModel('comment')
 const uuid = require('node-uuid')
 const hints = require('../bin/hints')
 
-const { uploadFilePublic, deleteFilePublic } = require('../utils/utils')
+const { uploadFilePublic, deleteFilePublic, formDate } = require('../utils/utils')
 const User = require('../routes/users')
 
 class ArticleController {
@@ -55,6 +55,7 @@ class ArticleController {
         imgList: url, // 图片列表（图片）
         like, // 喜欢
         coll, // 收藏
+        createtime: formDate(new Date())
       }
       // 创建文章形式
       if (type === '1') {
