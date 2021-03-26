@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-16 15:50:42
+ * @LastEditTime: 2021-03-25 17:02:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\app.js
@@ -20,6 +20,8 @@ const home = require('./routes/home');
 const upload = require('./routes/upload');
 const article = require('./routes/article');
 const comment = require('./routes/comment');
+const search = require('./routes/search');
+const shopping = require('./routes/shopping');
 const jwtKoa = require('koa-jwt');
 const {secret} = require('./bin/config');
 const checkToken  = require('./middleware/checkToken');
@@ -102,6 +104,8 @@ app.use(home.routes(), home.allowedMethods())
 app.use(upload.routes())
 app.use(article.routes(), article.allowedMethods())
 app.use(comment.routes(), comment.allowedMethods())
+app.use(search.routes(), search.allowedMethods())
+app.use(shopping.routes(), shopping.allowedMethods())
 // 检查token路由
 app.use(token.routes(), token.allowedMethods())
 
