@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-03-17 15:42:41
+ * @LastEditTime: 2021-03-26 16:37:07
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -54,6 +54,7 @@ module.exports = {
 		uid: String,
 		title: String,
 		detail: String,
+		desc: Array, // 装修文章的房间描述
 		imgList: Array, // 图片列表（图片）
 		coverImg: String, // 封面（文章）
 		spaceObj: Object, // 图文（文章用到）
@@ -63,6 +64,8 @@ module.exports = {
 		area: String, // 面积
 		cost: String, // 花费
 		location: String, // 地区
+		duplex: String,
+		require: Array, // 要求
 		createtime: String
 	},
 	comment: {

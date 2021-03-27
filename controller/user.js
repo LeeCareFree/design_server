@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-17 19:27:29
+ * @LastEditTime: 2021-03-24 12:53:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -25,11 +25,11 @@ const uuid = require('node-uuid')
  */
 class UserController {
   constructor() {
-    this.secret = "lee"; // 定义签名
-    this.defaultAvatar = 'http://192.168.0.105:3000/avatar/lee.jpg';
-    this.login = this.login.bind(this);
-    this.register = this.register.bind(this);
-    this.getAccountInfo = this.getAccountInfo.bind(this);
+    this.secret = 'lee' // 定义签名
+    this.defaultAvatar = 'http://192.168.0.105:3000/avatar/lee.jpg'
+    this.login = this.login.bind(this)
+    this.register = this.register.bind(this)
+    this.getAccountInfo = this.getAccountInfo.bind(this)
   }
 
   mdsPassword(password) {
@@ -176,24 +176,26 @@ class UserController {
           { uid },
           { $addToSet: { likeArr: aid } }
         )
-        await Article.updateOne(
-          { aid },
-          {
-            $inc: { like: 1 },
-          }
-        )
+        if (userResult.nModified)
+          await Article.updateOne(
+            { aid },
+            {
+              $inc: { like: 1 },
+            }
+          )
         break
       case 1:
         userResult = await User.updateOne(
           { uid },
           { $addToSet: { collArr: aid } }
         )
-        await Article.updateOne(
-          { aid },
-          {
-            $inc: { coll: 1 },
-          }
-        )
+        if (userResult.nModified)
+          await Article.updateOne(
+            { aid },
+            {
+              $inc: { coll: 1 },
+            }
+          )
         break
     }
 
@@ -226,24 +228,26 @@ class UserController {
           { uid: uid },
           { $pull: { likeArr: { $in: [aid] } } }
         )
-        await Article.find({ aid }).update(
-          {
-            like: { $gt: 0 },
-          },
-          { $inc: { like: -1 } }
-        )
+        if (userResult.nModified)
+          await Article.find({ aid }).update(
+            {
+              like: { $gt: 0 },
+            },
+            { $inc: { like: -1 } }
+          )
         break
       case 1:
         userResult = await User.updateOne(
           { uid: uid },
           { $pull: { collArr: { $in: [aid] } } }
         )
-        await Article.find({ aid }).update(
-          {
-            coll: { $gt: 0 },
-          },
-          { $inc: { coll: -1 } }
-        )
+        if (userResult.nModified)
+          await Article.find({ aid }).update(
+            {
+              coll: { $gt: 0 },
+            },
+            { $inc: { coll: -1 } }
+          )
         break
     }
 

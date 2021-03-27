@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-17 15:46:02
+ * @LastEditTime: 2021-03-26 17:09:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -12,7 +12,11 @@ let Comment = dbHelper.getModel('comment')
 const uuid = require('node-uuid')
 const hints = require('../bin/hints')
 
-const { uploadFilePublic, deleteFilePublic, formDate } = require('../utils/utils')
+const {
+  uploadFilePublic,
+  deleteFilePublic,
+  formDate,
+} = require('../utils/utils')
 const User = require('../routes/users')
 
 class ArticleController {
@@ -21,8 +25,7 @@ class ArticleController {
    */
   async createArticle(ctx) {
     try {
-      console.log(ctx.request.files['files[]'])
-      const files = ctx.request.files['files[]']
+      // console.log(ctx.request.files['files[]'])
       let url, result
       let {
         type,
@@ -35,15 +38,14 @@ class ArticleController {
         area,
         cost,
         location,
+        duplex,
       } = ctx.request.body
 
-      if (!type || !uid || !title || !detail) {
+      if (!type || !uid || !title) {
         return (ctx.body = hints.CREATEFAIL({
           data: '必传值未传',
         }))
       }
-
-      url = uploadFilePublic(ctx, files)
 
       let aid = uuid.v4()
       let newValue = {
@@ -51,22 +53,56 @@ class ArticleController {
         aid,
         uid,
         title,
-        detail,
-        imgList: url, // 图片列表（图片）
         like, // 喜欢
         coll, // 收藏
-        createtime: formDate(new Date())
+        createtime: formDate(new Date()),
       }
       // 创建文章形式
       if (type === '1') {
+        let desc = ctx.request.body['desc[]']
+        let require = ctx.request.body['require[]']
+
+        let descCopy = [],requireCopy = []
+
+        for (const key in desc) {
+          if (Object.hasOwnProperty.call(desc, key)) {
+            const element = JSON.parse(desc[key])
+            var k = Object.keys(element)[0]
+            descCopy.push(element)
+            let imgFiles = ctx.request.files[`${k}[]`]
+            if (imgFiles) {
+              url = uploadFilePublic(ctx, imgFiles, 'decoration')
+              Object.assign(element, {
+                imgList: url,
+              })
+            }
+          }
+        }
+
+        for (const key in require) {
+          if (Object.hasOwnProperty.call(require, key)) {
+            const element = JSON.parse(require[key]);
+            requireCopy.push(element)
+          }
+        }
+
         newValue = Object.assign(newValue, {
           doorModel,
           area,
           cost,
           location,
+          duplex,
+          desc: descCopy,
+          require: requireCopy
         })
         result = await Article.create(newValue)
       } else if (type === '2') {
+        const files = ctx.request.files['files[]']
+        url = uploadFilePublic(ctx, files)
+        newValue = Object.assign(newValue, {
+          detail,
+          imgList: url, // 图片列表（图片）
+        })
         // 图片形式
         result = await Article.create(newValue)
       }
@@ -89,19 +125,29 @@ class ArticleController {
   }
 
   async delArticle(ctx) {
-    let imgList
     let { aid } = ctx.request.body
 
     let article = await Article.findOne({ aid: aid })
     if (article) {
-      imgList = article.imgList
+      switch (article.type) {
+        case '1':
+          let desc = article.desc
+          desc.map((item) => {
+            let imgList = item.imgList
+            if (imgList) deleteFilePublic(imgList, 'decoration')
+          })
+          break
+        case '2':
+          let imgList = article.imgList
+          deleteFilePublic(imgList)
+          break
+      }
+
       // 删除评论文档
-      await Comment.remove({ aid: aid })
+      await Comment.deleteOne({ aid: aid })
     } else {
       return (ctx.body = hints.ARTICLE_NOT_EXIST)
     }
-
-    deleteFilePublic(imgList)
 
     let result = await Article.deleteOne({ aid: aid })
     if (result) {

@@ -24,6 +24,7 @@ const fs = require('fs')
  */
 function uploadFilePublic(ctx, files, dir = 'publish') {
   const flag = !!files.length // 是否是多个文件上传
+  console.log('flag:',flag)
   const filePath = path.join(__dirname, `../public/upload/${dir}`)
   const uploadUrl = `${ctx.origin}/upload/${dir}`
   let file, fileReader, fileResource, writeStream
@@ -58,13 +59,8 @@ function uploadFilePublic(ctx, files, dir = 'publish') {
 
   // 判断文件夹是否存在，如果不在的话就创建一个
   if (!fs.existsSync(filePath)) {
-    fs.mkdir(filePath, (err) => {
-      if (err) {
-        throw new Error(err)
-      } else {
-        return returnFunc(flag)
-      }
-    })
+    fs.mkdirSync(filePath)
+    return returnFunc(flag)
   } else {
     return returnFunc(flag)
   }
