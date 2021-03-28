@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-26 17:09:47
+ * @LastEditTime: 2021-03-28 16:45:50
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -9,6 +9,7 @@
 const dbHelper = require('../db/dpHelper')
 let Article = dbHelper.getModel('article')
 let Comment = dbHelper.getModel('comment')
+let User = dbHelper.getModel('user')
 const uuid = require('node-uuid')
 const hints = require('../bin/hints')
 
@@ -17,7 +18,6 @@ const {
   deleteFilePublic,
   formDate,
 } = require('../utils/utils')
-const User = require('../routes/users')
 
 class ArticleController {
   /**
@@ -39,6 +39,9 @@ class ArticleController {
         cost,
         location,
         duplex,
+        decoratestyle,
+        decorateduration,
+        decorateother,
       } = ctx.request.body
 
       if (!type || !uid || !title) {
@@ -53,6 +56,7 @@ class ArticleController {
         aid,
         uid,
         title,
+        detail,
         like, // 喜欢
         coll, // 收藏
         createtime: formDate(new Date()),
@@ -60,45 +64,61 @@ class ArticleController {
       // 创建文章形式
       if (type === '1') {
         let desc = ctx.request.body['desc[]']
-        let require = ctx.request.body['require[]']
+        let coverFiles = ctx.request.files.cover
 
-        let descCopy = [],requireCopy = []
+        let descCopy = [],
+          cover
+        let titleMap = {
+          floorplan: '户型图',
+          drawingroom: '客厅',
+          kitchen: '厨房',
+          masterbedroom: '主卧',
+          secondarybedroom: '次卧',
+          toilet: '卫生间',
+          study: '书房',
+          balcony: '阳台',
+          corridor: '走廊',
+        }
+
+        cover = uploadFilePublic(ctx, coverFiles, aid, 'decoration')
 
         for (const key in desc) {
           if (Object.hasOwnProperty.call(desc, key)) {
+            var item = {}
             const element = JSON.parse(desc[key])
             var k = Object.keys(element)[0]
-            descCopy.push(element)
+
+            Object.assign(item, {
+              title: titleMap[k],
+              content: element[k],
+            })
             let imgFiles = ctx.request.files[`${k}[]`]
             if (imgFiles) {
-              url = uploadFilePublic(ctx, imgFiles, 'decoration')
-              Object.assign(element, {
+              url = uploadFilePublic(ctx, imgFiles, aid, 'decoration')
+              Object.assign(item, {
                 imgList: url,
               })
             }
-          }
-        }
-
-        for (const key in require) {
-          if (Object.hasOwnProperty.call(require, key)) {
-            const element = JSON.parse(require[key]);
-            requireCopy.push(element)
+            descCopy.push(item)
           }
         }
 
         newValue = Object.assign(newValue, {
+          cover,
           doorModel,
           area,
           cost,
           location,
           duplex,
           desc: descCopy,
-          require: requireCopy
+          decoratestyle,
+          decorateduration,
+          decorateother,
         })
         result = await Article.create(newValue)
       } else if (type === '2') {
         const files = ctx.request.files['files[]']
-        url = uploadFilePublic(ctx, files)
+        url = uploadFilePublic(ctx, files, aid)
         newValue = Object.assign(newValue, {
           detail,
           imgList: url, // 图片列表（图片）
@@ -132,10 +152,12 @@ class ArticleController {
       switch (article.type) {
         case '1':
           let desc = article.desc
+          let coverImg = article.cover
           desc.map((item) => {
             let imgList = item.imgList
             if (imgList) deleteFilePublic(imgList, 'decoration')
           })
+          if (coverImg) deleteFilePublic(coverImg, 'decoration')
           break
         case '2':
           let imgList = article.imgList
@@ -145,6 +167,18 @@ class ArticleController {
 
       // 删除评论文档
       await Comment.deleteOne({ aid: aid })
+      await User.update(
+        { likeArr: aid },
+        {
+          $pull: { likeArr: { $in: [aid] } },
+        }
+      )
+      await User.update(
+        { collArr: aid },
+        {
+          $pull: { collArr: { $in: [aid] } },
+        }
+      )
     } else {
       return (ctx.body = hints.ARTICLE_NOT_EXIST)
     }

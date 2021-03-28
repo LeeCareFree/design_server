@@ -22,18 +22,22 @@ const fs = require('fs')
  * @param {*} dir 需要上传的文件夹
  * @return {*}
  */
-function uploadFilePublic(ctx, files, dir = 'publish') {
+function uploadFilePublic(ctx, files, aid, dir = 'publish') {
   const flag = !!files.length // 是否是多个文件上传
-  console.log('flag:',flag)
+  console.log('flag:', flag)
   const filePath = path.join(__dirname, `../public/upload/${dir}`)
   const uploadUrl = `${ctx.origin}/upload/${dir}`
-  let file, fileReader, fileResource, writeStream
+  let fileName, fileReader, fileResource, writeStream
 
-  const fileFunc = function (file) {
+  const fileFunc = function (file, index) {
+    let extname = path.extname(file.path)
+    fileName =
+      `/${dir}${aid ? '_' + aid : new Date() * 1}_${index || 'single'}` +
+      extname
     // 读取文件流
     fileReader = fs.createReadStream(file.path)
     // 组装成绝对路径
-    fileResource = filePath + `/${file.name}`
+    fileResource = filePath + fileName
     /*
        使用 createWriteStream 写入数据，然后使用管道流pipe拼接
       */
@@ -46,14 +50,14 @@ function uploadFilePublic(ctx, files, dir = 'publish') {
       let urlArr = []
       for (let i = 0; i < files.length; i++) {
         const f1 = files[i]
-        fileFunc(f1)
-        let url = `${uploadUrl}/${files[i].name}`
+        fileFunc(f1, i + 1)
+        let url = `${uploadUrl}${fileName}`
         urlArr.push(url)
       }
       return urlArr
     } else {
       fileFunc(files)
-      return uploadUrl + `/${files.name}`
+      return uploadUrl + `${fileName}`
     }
   }
 
@@ -67,13 +71,21 @@ function uploadFilePublic(ctx, files, dir = 'publish') {
 }
 
 function deleteFilePublic(arr, dir = 'publish') {
-  arr.forEach((element) => {
-    const basename = path.basename(element)
+  const func = function (item) {
+    const basename = path.basename(item)
     let filePath = path.join(__dirname, `../public/upload/${dir}/${basename}`)
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath)
     }
-  })
+  }
+
+  if (Array.isArray(arr)) {
+    arr.forEach((element) => {
+      func(element)
+    })
+  } else {
+    func(arr)
+  }
 }
 
 function formDate(date) {
@@ -87,11 +99,19 @@ function formDate(date) {
   var hour = date.getHours()
   var minute = date.getMinutes()
   var second = date.getSeconds()
-  return year + '年' + formatTen(month) + '月' + formatTen(day) + '日 ' + `${hour}:${minute}:${second}`
+  return (
+    year +
+    '年' +
+    formatTen(month) +
+    '月' +
+    formatTen(day) +
+    '日 ' +
+    `${hour}:${minute}:${second}`
+  )
 }
 
 module.exports = {
   uploadFilePublic,
   deleteFilePublic,
-  formDate
+  formDate,
 }
