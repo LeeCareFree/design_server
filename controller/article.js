@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-28 16:45:50
+ * @LastEditTime: 2021-03-29 17:17:46
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -41,7 +41,7 @@ class ArticleController {
         duplex,
         decoratestyle,
         decorateduration,
-        decorateother,
+        decorateother
       } = ctx.request.body
 
       if (!type || !uid || !title) {
@@ -63,11 +63,22 @@ class ArticleController {
       }
       // 创建文章形式
       if (type === '1') {
-        let desc = ctx.request.body['desc[]']
-        let coverFiles = ctx.request.files.cover
-
-        let descCopy = [],
+        let descCopy = [],desc = {},
           cover
+
+        // 将desc[key]: value 转换为对象
+        for (const key in ctx.request.body) {
+          if (Object.hasOwnProperty.call(ctx.request.body, key)) {
+            const element = ctx.request.body[key];
+            let pattern = /^desc\[(\w*)\]/g
+            if(pattern.test(key)) {
+              desc[RegExp.$1] = element
+            }
+          }
+        }
+
+        let coverFiles = ctx.request.files.cover
+        
         let titleMap = {
           floorplan: '户型图',
           drawingroom: '客厅',
@@ -80,26 +91,28 @@ class ArticleController {
           corridor: '走廊',
         }
 
-        cover = uploadFilePublic(ctx, coverFiles, aid, 'decoration')
+        cover = uploadFilePublic(ctx, coverFiles, aid+'_cover', 'decoration')
 
         for (const key in desc) {
           if (Object.hasOwnProperty.call(desc, key)) {
             var item = {}
-            const element = JSON.parse(desc[key])
-            var k = Object.keys(element)[0]
+            const element = desc[key]
+            let imgFiles = ctx.request.files[`${key}[]`]
 
-            Object.assign(item, {
-              title: titleMap[k],
-              content: element[k],
-            })
-            let imgFiles = ctx.request.files[`${k}[]`]
-            if (imgFiles) {
-              url = uploadFilePublic(ctx, imgFiles, aid, 'decoration')
+            if(element || imgFiles) {
               Object.assign(item, {
-                imgList: url,
+                title: titleMap[key],
+                content: element,
               })
-            }
-            descCopy.push(item)
+              
+              if (imgFiles) {
+                url = uploadFilePublic(ctx, imgFiles, aid+'_'+key, 'decoration')
+                Object.assign(item, {
+                  imgList: Array.isArray(url) ? url : [url],
+                })
+              }
+              descCopy.push(item)
+            } 
           }
         }
 
@@ -129,7 +142,10 @@ class ArticleController {
 
       if (result) {
         ctx.body = hints.SUCCESS({
-          data: newValue,
+          data: {
+            aid,
+            type
+          },
           msg: '发布成功',
         })
         // 评论表
@@ -291,6 +307,10 @@ class ArticleController {
           _id: 0,
           __v: 0,
           uid: 0,
+          desc: 0,
+          decoratestyle: 0,
+          decorateduration: 0,
+          decorateother: 0,
           'user._id': 0,
           'user.__v': 0,
           'user.password': 0,

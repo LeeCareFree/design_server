@@ -24,7 +24,6 @@ const fs = require('fs')
  */
 function uploadFilePublic(ctx, files, aid, dir = 'publish') {
   const flag = !!files.length // 是否是多个文件上传
-  console.log('flag:', flag)
   const filePath = path.join(__dirname, `../public/upload/${dir}`)
   const uploadUrl = `${ctx.origin}/upload/${dir}`
   let fileName, fileReader, fileResource, writeStream
