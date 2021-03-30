@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-03-30 13:42:37
+ * @LastEditTime: 2021-03-30 17:33:15
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -14,10 +14,6 @@ module.exports = {
 		nickname: String,
 		password: String,
 		avatar: String,
-		pubArr: {
-			type: Array,
-			default: []
-		},
 		likeArr: {
 			type: Array,
 			default: []
@@ -26,7 +22,7 @@ module.exports = {
 			type: Array,
 			default: []
 		},
-		articleArr: {
+		proArr: {
 			type: Array,
 			default: []
 		},

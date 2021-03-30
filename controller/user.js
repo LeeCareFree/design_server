@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-27 16:49:21
+ * @LastEditTime: 2021-03-30 17:48:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -135,6 +135,19 @@ class UserController {
       const { uid } = ctx.state.user
       const result = await User.findOne({
         uid: uid,
+      }).then((res) => {
+        let userInfo = {}
+        return Object.assign(userInfo, {
+          uid: res.uid,
+          username: res.username,
+          nickname: res.nickname,
+          avatar: res.avatar,
+          proArr: res.proArr.length,
+          likeNum: res.likeArr.length,
+          collNum: res.collArr.length,
+          fansNum: res.fansArr.length,
+          followNum: res.followArr.length
+        })
       })
       if (result) {
         ctx.body = hints.SUCCESS({
@@ -153,6 +166,10 @@ class UserController {
       })
       ctx.throw(err)
     }
+  }
+
+  async getProductionList(ctx) {
+    
   }
 
   /**

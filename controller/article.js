@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-30 16:28:43
+ * @LastEditTime: 2021-03-30 17:33:05
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -163,7 +163,7 @@ class ArticleController {
         await User.update(
           { uid },
           {
-            $addToSet: { pubArr: aid },
+            $addToSet: { proArr: aid },
           }
         )
       }
@@ -197,9 +197,9 @@ class ArticleController {
       await Comment.deleteOne({ aid: aid })
       await User.update(
         {
-          pubArr: aid,
+          proArr: aid,
         },
-        { $pull: { pubArr: { $in: [aid] } } }
+        { $pull: { proArr: { $in: [aid] } } }
       )
       await User.update(
         { likeArr: aid },
@@ -248,7 +248,7 @@ class ArticleController {
           'user.password': 0,
           'user.password': 0,
           'user.likeArr': 0,
-          'user.articleArr': 0,
+          'user.proArr': 0,
           'user.followArr': 0,
           'user.fansArr': 0,
           'user.collArr': 0,
@@ -289,7 +289,7 @@ class ArticleController {
           'comlist.user.password': 0,
           'comlist.user.likeArr': 0,
           'comlist.user.collArr': 0,
-          'comlist.user.articleArr': 0,
+          'comlist.user.proArr': 0,
           'comlist.user.followArr': 0,
           'comlist.user.fansArr': 0,
         },
@@ -344,9 +344,8 @@ class ArticleController {
           'user.__v': 0,
           'user.password': 0,
           'user.likeArr': 0,
-          'user.pubArr': 0,
           'user.collArr': 0,
-          'user.articleArr': 0,
+          'user.proArr': 0,
           'user.followArr': 0,
           'user.fansArr': 0,
         },
@@ -402,9 +401,8 @@ class ArticleController {
           'user.__v': 0,
           'user.password': 0,
           'user.likeArr': 0,
-          'user.pubArr': 0,
           'user.collArr': 0,
-          'user.articleArr': 0,
+          'user.proArr': 0,
           'user.followArr': 0,
           'user.fansArr': 0,
         },
