@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-30 17:33:05
+ * @LastEditTime: 2021-03-30 18:16:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -313,44 +313,91 @@ class ArticleController {
    * 查询全部
    * @param {*} ctx
    */
-  async getAllArticleList(ctx) {
-    let { page = 1, size = 10 } = ctx.request.body
-    let result = await Article.aggregate([
-      {
-        $skip: Number(page - 1) * Number(size),
-      },
-      {
-        $limit: Number(size),
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'uid',
-          foreignField: 'uid',
-          as: 'user',
+  async getArticleList(ctx) {
+    let { page = 1, size = 10, way = '1' } = ctx.request.body
+    let result
+
+    if (way == '1') {
+      result = await Article.aggregate([
+        {
+          $skip: Number(page - 1) * Number(size),
         },
-      },
-      { $unwind: '$user' },
-      {
-        $project: {
-          _id: 0,
-          __v: 0,
-          uid: 0,
-          desc: 0,
-          decoratestyle: 0,
-          decorateduration: 0,
-          decorateother: 0,
-          'user._id': 0,
-          'user.__v': 0,
-          'user.password': 0,
-          'user.likeArr': 0,
-          'user.collArr': 0,
-          'user.proArr': 0,
-          'user.followArr': 0,
-          'user.fansArr': 0,
+        {
+          $limit: Number(size),
         },
-      },
-    ])
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'uid',
+            foreignField: 'uid',
+            as: 'user',
+          },
+        },
+        { $unwind: '$user' },
+        {
+          $project: {
+            _id: 0,
+            __v: 0,
+            uid: 0,
+            desc: 0,
+            decoratestyle: 0,
+            decorateduration: 0,
+            decorateother: 0,
+            'user._id': 0,
+            'user.__v': 0,
+            'user.password': 0,
+            'user.likeArr': 0,
+            'user.collArr': 0,
+            'user.proArr': 0,
+            'user.followArr': 0,
+            'user.fansArr': 0,
+          },
+        },
+      ])
+    } else if (way === '2') {
+      result = await Article.aggregate([
+        {
+          $match: {
+            $or: [{ type: '1' }, { type: '2' }],
+          },
+        },
+        {
+          $skip: Number(page - 1) * Number(size),
+        },
+        {
+          $limit: Number(size),
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'uid',
+            foreignField: 'uid',
+            as: 'user',
+          },
+        },
+        { $unwind: '$user' },
+        {
+          $project: {
+            _id: 0,
+            __v: 0,
+            uid: 0,
+            desc: 0,
+            decoratestyle: 0,
+            decorateduration: 0,
+            decorateother: 0,
+            'user._id': 0,
+            'user.__v': 0,
+            'user.password': 0,
+            'user.likeArr': 0,
+            'user.collArr': 0,
+            'user.proArr': 0,
+            'user.followArr': 0,
+            'user.fansArr': 0,
+          },
+        },
+      ])
+    }
+
     if (result) {
       ctx.body = hints.SUCCESS({
         data: result,
