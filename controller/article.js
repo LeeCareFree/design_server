@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-29 17:17:46
+ * @LastEditTime: 2021-03-30 16:28:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -41,7 +41,7 @@ class ArticleController {
         duplex,
         decoratestyle,
         decorateduration,
-        decorateother
+        decorateother,
       } = ctx.request.body
 
       if (!type || !uid || !title) {
@@ -63,22 +63,23 @@ class ArticleController {
       }
       // 创建文章形式
       if (type === '1') {
-        let descCopy = [],desc = {},
+        let descCopy = [],
+          desc = {},
           cover
 
         // 将desc[key]: value 转换为对象
         for (const key in ctx.request.body) {
           if (Object.hasOwnProperty.call(ctx.request.body, key)) {
-            const element = ctx.request.body[key];
+            const element = ctx.request.body[key]
             let pattern = /^desc\[(\w*)\]/g
-            if(pattern.test(key)) {
+            if (pattern.test(key)) {
               desc[RegExp.$1] = element
             }
           }
         }
 
         let coverFiles = ctx.request.files.cover
-        
+
         let titleMap = {
           floorplan: '户型图',
           drawingroom: '客厅',
@@ -91,7 +92,7 @@ class ArticleController {
           corridor: '走廊',
         }
 
-        cover = uploadFilePublic(ctx, coverFiles, aid+'_cover', 'decoration')
+        cover = uploadFilePublic(ctx, coverFiles, aid + '_cover', 'decoration')
 
         for (const key in desc) {
           if (Object.hasOwnProperty.call(desc, key)) {
@@ -99,20 +100,25 @@ class ArticleController {
             const element = desc[key]
             let imgFiles = ctx.request.files[`${key}[]`]
 
-            if(element || imgFiles) {
+            if (element || imgFiles) {
               Object.assign(item, {
                 title: titleMap[key],
                 content: element,
               })
-              
+
               if (imgFiles) {
-                url = uploadFilePublic(ctx, imgFiles, aid+'_'+key, 'decoration')
+                url = uploadFilePublic(
+                  ctx,
+                  imgFiles,
+                  aid + '_' + key,
+                  'decoration'
+                )
                 Object.assign(item, {
                   imgList: Array.isArray(url) ? url : [url],
                 })
               }
               descCopy.push(item)
-            } 
+            }
           }
         }
 
@@ -144,7 +150,7 @@ class ArticleController {
         ctx.body = hints.SUCCESS({
           data: {
             aid,
-            type
+            type,
           },
           msg: '发布成功',
         })
@@ -154,6 +160,12 @@ class ArticleController {
           cid: uuid.v4(),
           comlist: [],
         })
+        await User.update(
+          { uid },
+          {
+            $addToSet: { pubArr: aid },
+          }
+        )
       }
     } catch (error) {
       console.log(error)
@@ -183,6 +195,12 @@ class ArticleController {
 
       // 删除评论文档
       await Comment.deleteOne({ aid: aid })
+      await User.update(
+        {
+          pubArr: aid,
+        },
+        { $pull: { pubArr: { $in: [aid] } } }
+      )
       await User.update(
         { likeArr: aid },
         {
@@ -291,8 +309,19 @@ class ArticleController {
     }
   }
 
-  async getArticleList(ctx) {
+  /**
+   * 查询全部
+   * @param {*} ctx
+   */
+  async getAllArticleList(ctx) {
+    let { page = 1, size = 10 } = ctx.request.body
     let result = await Article.aggregate([
+      {
+        $skip: Number(page - 1) * Number(size),
+      },
+      {
+        $limit: Number(size),
+      },
       {
         $lookup: {
           from: 'users',
@@ -315,6 +344,7 @@ class ArticleController {
           'user.__v': 0,
           'user.password': 0,
           'user.likeArr': 0,
+          'user.pubArr': 0,
           'user.collArr': 0,
           'user.articleArr': 0,
           'user.followArr': 0,
@@ -330,8 +360,64 @@ class ArticleController {
     } else {
       ctx.body = hints.FINDFAIL()
     }
+  }
 
-    // console.log(result)
+  /**
+   * 查询图文文章
+   * @param {*} ctx
+   */
+  async getArticleAndPictureList(ctx) {
+    let { page = 1, size = 10 } = ctx.request.body
+    let result = await Article.aggregate([
+      {
+        $match: {
+          $or: [{ type: '1' }, { type: '2' }],
+        },
+      },
+      {
+        $skip: Number(page - 1) * Number(size),
+      },
+      {
+        $limit: Number(size),
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'uid',
+          foreignField: 'uid',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          _id: 0,
+          __v: 0,
+          uid: 0,
+          desc: 0,
+          decoratestyle: 0,
+          decorateduration: 0,
+          decorateother: 0,
+          'user._id': 0,
+          'user.__v': 0,
+          'user.password': 0,
+          'user.likeArr': 0,
+          'user.pubArr': 0,
+          'user.collArr': 0,
+          'user.articleArr': 0,
+          'user.followArr': 0,
+          'user.fansArr': 0,
+        },
+      },
+    ])
+    if (result) {
+      ctx.body = hints.SUCCESS({
+        data: result,
+        msg: '获取文章列表成功',
+      })
+    } else {
+      ctx.body = hints.FINDFAIL()
+    }
   }
 }
 
