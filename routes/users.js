@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-17 19:15:07
+ * @LastEditTime: 2021-03-30 18:51:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\routes\users.js
@@ -19,6 +19,7 @@ User.post('/api/users/operation/query', UserController.queryStatus);
 User.post('/api/users/follow/add', UserController.addFollow);
 User.post('/api/users/follow/cancel', UserController.cancelFollow);
 User.post('/api/users/follow/query', UserController.queryFollow);
+User.post('/api/users/getarrlist', UserController.getListByArr);
 
 
 module.exports = User

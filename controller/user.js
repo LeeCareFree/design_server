@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-30 17:48:47
+ * @LastEditTime: 2021-03-31 15:49:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -142,11 +142,11 @@ class UserController {
           username: res.username,
           nickname: res.nickname,
           avatar: res.avatar,
-          proArr: res.proArr.length,
+          proNum: res.proArr.length,
           likeNum: res.likeArr.length,
           collNum: res.collArr.length,
           fansNum: res.fansArr.length,
-          followNum: res.followArr.length
+          followNum: res.followArr.length,
         })
       })
       if (result) {
@@ -168,8 +168,99 @@ class UserController {
     }
   }
 
-  async getProductionList(ctx) {
-    
+  async getListByArr(ctx) {
+    let { uid, arrname = 'production' } = ctx.request.body
+    let result = await User.findOne({ uid })
+      .then((res) => {
+        switch (arrname) {
+          case 'production':
+            return res.proArr
+          case 'like':
+            return res.likeArr
+          case 'collection':
+            return res.collArr
+          case 'follow':
+            return res.followArr
+          case 'fans':
+            return res.fansArr
+        }
+      })
+      .then((arrData) => {
+        console.log(arrData)
+        switch (arrname) {
+          case 'production':
+          case 'like':
+          case 'collection':
+            return Article.aggregate([
+              {
+                $match: {
+                  aid: { $in: arrData },
+                },
+              },
+              {
+                $lookup: {
+                  from: 'users',
+                  localField: 'uid',
+                  foreignField: 'uid',
+                  as: 'user',
+                },
+              },
+              { $unwind: '$user' },
+              {
+                $project: {
+                  _id: 0,
+                  __v: 0,
+                  uid: 0,
+                  desc: 0,
+                  decoratestyle: 0,
+                  decorateduration: 0,
+                  decorateother: 0,
+                  'user._id': 0,
+                  'user.__v': 0,
+                  'user.password': 0,
+                  'user.likeArr': 0,
+                  'user.collArr': 0,
+                  'user.proArr': 0,
+                  'user.followArr': 0,
+                  'user.fansArr': 0,
+                },
+              },
+            ])
+          case 'follow':
+          case 'fans':
+            return User.find({ uid: { $in: arrData } }).then((users) => {
+              if (users) {
+                let userArr = []
+                users.forEach((user) => {
+                  let u = {
+                    avatar: user.avatar,
+                    nickname: user.nickname,
+                    username: user.username,
+                    uid: user.uid,
+                  }
+                  let followArr = user.followArr
+                  if (arrname === 'fans') {
+                    followArr.indexOf(uid) >= 0
+                      ? (u.isFocus = true)
+                      : (u.isFocus = false)
+                  }
+                  userArr.push(u)
+                })
+                return userArr
+              } else {
+                return users
+              }
+            })
+        }
+      })
+    if (result) {
+      ctx.body = hints.SUCCESS({
+        data: result,
+        msg: '获取成功',
+      })
+    } else {
+      ctx.body = hints.FINDFAIL()
+    }
   }
 
   /**
