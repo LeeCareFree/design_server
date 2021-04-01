@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-31 15:49:23
+ * @LastEditTime: 2021-04-01 14:21:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -12,6 +12,7 @@ const jwt = require('jsonwebtoken')
 const xss = require('node-xss').clean
 const dbHelper = require('../db/dpHelper')
 let User = dbHelper.getModel('user')
+let Admin = dbHelper.getModel('admin')
 let Article = dbHelper.getModel('article')
 const hints = require('../bin/hints')
 const crypto = require('crypto')
@@ -28,6 +29,7 @@ class UserController {
     this.secret = 'lee' // 定义签名
     this.defaultAvatar = 'http://8.129.214.128:3001/avatar/lee.jpg'
     this.login = this.login.bind(this)
+    this.loginAdmin = this.loginAdmin.bind(this)
     this.register = this.register.bind(this)
     this.getAccountInfo = this.getAccountInfo.bind(this)
   }
@@ -70,6 +72,50 @@ class UserController {
               nickname: result.nickname,
               avatar: this.defaultAvatar,
               uid: result.uid,
+              token: token,
+            },
+            msg: '登录成功',
+          })
+        }
+      } else {
+        ctx.body = hints.LOGIN_USER_NOT_EXIST
+      }
+    } catch (err) {
+      await next()
+    }
+  }
+
+  /**
+   * 管理登录
+   * @param {*} ctx
+   * @param {*} next
+   */
+   async loginAdmin(ctx, next) {
+    try {
+      const { username, password='abcd1234' } = xss(ctx.request.body.data)
+      console.log(password)
+      var result = await Admin.findOne({
+        username: username
+      })
+      if (result) {
+        if (this.mdsPassword(password) != result.password) {
+          ctx.body = hints.LOGIN_PASSWORD_WRONG
+        } else {
+          const token = jwt.sign(
+            {
+              name: username,
+            },
+            this.secret,
+            {
+              expiresIn: '7d', //到期时间
+            }
+          )
+          ctx.body = {
+            data: 'sssss'
+          }
+          ctx.body = hints.SUCCESS({
+            data: {
+              username: result.username,
               token: token,
             },
             msg: '登录成功',

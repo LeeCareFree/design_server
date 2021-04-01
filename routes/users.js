@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-03-30 18:51:17
+ * @LastEditTime: 2021-04-01 13:28:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\routes\users.js
@@ -11,6 +11,7 @@ const Router = require('koa-router');
 const User = new Router();
 
 User.post('/api/users/login',  UserController.login);
+User.post('/api/admin/login', UserController.loginAdmin);
 User.post('/api/users/register',  UserController.register);
 User.get('/api/users/accountInfo',  UserController.getAccountInfo);
 User.post('/api/users/operation/add', UserController.addOperation);

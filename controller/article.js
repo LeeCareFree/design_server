@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-30 18:17:50
+ * @LastEditTime: 2021-03-31 17:42:58
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -139,11 +139,18 @@ class ArticleController {
         const files = ctx.request.files['files[]']
         url = uploadFilePublic(ctx, files, aid)
         newValue = Object.assign(newValue, {
-          detail,
           imgList: url, // 图片列表（图片）
         })
         // 图片形式
         result = await Article.create(newValue)
+      } else if(type === '3') {
+        const video = ctx.request.files.video
+        url = uploadFilePublic(ctx, video, aid, 'videos')
+        newValue = Object.assign(newValue, {
+          videoUrl: url
+        })
+        result = await Article.create(newValue)
+        result = newValue
       }
 
       if (result) {
@@ -191,6 +198,9 @@ class ArticleController {
           let imgList = article.imgList
           deleteFilePublic(imgList)
           break
+        case '3':
+          let videoUrl = article.videoUrl
+          deleteFilePublic(videoUrl, 'videos')
       }
 
       // 删除评论文档
