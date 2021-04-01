@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-01 19:58:49
+ * @LastEditTime: 2021-04-01 20:06:11
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -242,7 +242,7 @@ class UserController {
   /**
    * 通过数组拿对应的列表
    * 作品、喜欢、收藏、关注、粉丝
-   * @param {*} ctx 
+   * @param {*} ctx
    */
   async getListByArr(ctx) {
     let { uid, arrname = 'production' } = ctx.request.body
@@ -329,10 +329,10 @@ class UserController {
         }
       })
     if (result) {
-      let data = {}
-      data[arrname] = result
       ctx.body = hints.SUCCESS({
-        data,
+        data: {
+          result,
+        },
         msg: '获取成功',
       })
     } else {
