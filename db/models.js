@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-04-01 13:43:22
+ * @LastEditTime: 2021-04-01 17:11:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -18,6 +18,15 @@ module.exports = {
     nickname: String,
     password: String,
     avatar: String,
+		bgimg: String, // 默认背景图
+		progress: String, // 装修进度
+		city: String,
+		doorModel: String, // 户型
+		area: String, // 面积
+		populace: String, // 人口
+		cost: String, // 预算
+		beginTime: String, //开始装修时间
+		checkInTime: String, // 入住时间
     likeArr: {
       type: Array,
       default: [],
@@ -39,6 +48,34 @@ module.exports = {
       default: [],
     },
   },
+	// 设计师表
+	stylist: {
+		uid: String,
+    username: String,
+    nickname: String,
+    password: String,
+    avatar: String,
+		likeArr: {
+      type: Array,
+      default: [],
+    },
+    collArr: {
+      type: Array,
+      default: [],
+    },
+    proArr: {
+      type: Array,
+      default: [],
+    },
+    followArr: {
+      type: Array,
+      default: [],
+    },
+    fansArr: {
+      type: Array,
+      default: [],
+    },
+	},
   // 发布作品
   home: {
     title: String,

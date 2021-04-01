@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-01 14:21:49
+ * @LastEditTime: 2021-04-01 17:38:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -28,6 +28,7 @@ class UserController {
   constructor() {
     this.secret = 'lee' // 定义签名
     this.defaultAvatar = 'http://8.129.214.128:3001/avatar/lee.jpg'
+    this.defaultBg = 'http://8.129.214.128:3001/imgs/defaultbg.jpg'
     this.login = this.login.bind(this)
     this.loginAdmin = this.loginAdmin.bind(this)
     this.register = this.register.bind(this)
@@ -71,6 +72,7 @@ class UserController {
               username: result.username,
               nickname: result.nickname,
               avatar: this.defaultAvatar,
+              bgimg: this.defaultBg,
               uid: result.uid,
               token: token,
             },
@@ -90,12 +92,12 @@ class UserController {
    * @param {*} ctx
    * @param {*} next
    */
-   async loginAdmin(ctx, next) {
+  async loginAdmin(ctx, next) {
     try {
-      const { username, password='abcd1234' } = xss(ctx.request.body.data)
+      const { username, password } = xss(ctx.request.body.data)
       console.log(password)
       var result = await Admin.findOne({
-        username: username
+        username: username,
       })
       if (result) {
         if (this.mdsPassword(password) != result.password) {
@@ -111,7 +113,7 @@ class UserController {
             }
           )
           ctx.body = {
-            data: 'sssss'
+            data: 'sssss',
           }
           ctx.body = hints.SUCCESS({
             data: {
@@ -178,23 +180,46 @@ class UserController {
    */
   async getAccountInfo(ctx) {
     try {
-      const { uid } = ctx.state.user
+      const { uid } = ctx.request.body
+      let userInfo = {}
       const result = await User.findOne({
         uid: uid,
-      }).then((res) => {
-        let userInfo = {}
-        return Object.assign(userInfo, {
-          uid: res.uid,
-          username: res.username,
-          nickname: res.nickname,
-          avatar: res.avatar,
-          proNum: res.proArr.length,
-          likeNum: res.likeArr.length,
-          collNum: res.collArr.length,
-          fansNum: res.fansArr.length,
-          followNum: res.followArr.length,
-        })
       })
+        .then((res) => {
+          Object.assign(userInfo, {
+            uid: res.uid,
+            username: res.username,
+            nickname: res.nickname,
+            avatar: res.avatar,
+            bgimg: res.bgimg,
+            proNum: res.proArr.length,
+            likeNum: res.likeArr.length,
+            collNum: res.collArr.length,
+            fansNum: res.fansArr.length,
+            followNum: res.followArr.length,
+          })
+          return Article.aggregate([
+            {
+              $match: {
+                aid: { $in: res.proArr },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                total: { $add: ['$like', '$coll'] },
+              },
+            },
+          ])
+        })
+        .then((res) => {
+          let sum = res.reduce((prev, cur) => {
+            return prev + cur.total
+          }, 0)
+          return Object.assign(userInfo, {
+            like_coll: sum,
+          })
+        })
       if (result) {
         ctx.body = hints.SUCCESS({
           data: result,
@@ -214,6 +239,11 @@ class UserController {
     }
   }
 
+  /**
+   * 通过数组拿对应的列表
+   * 作品、喜欢、收藏、关注、粉丝
+   * @param {*} ctx 
+   */
   async getListByArr(ctx) {
     let { uid, arrname = 'production' } = ctx.request.body
     let result = await User.findOne({ uid })
