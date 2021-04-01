@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-01 17:38:38
+ * @LastEditTime: 2021-04-01 19:58:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -262,7 +262,6 @@ class UserController {
         }
       })
       .then((arrData) => {
-        console.log(arrData)
         switch (arrname) {
           case 'production':
           case 'like':
@@ -330,8 +329,10 @@ class UserController {
         }
       })
     if (result) {
+      let data = {}
+      data[arrname] = result
       ctx.body = hints.SUCCESS({
-        data: result,
+        data,
         msg: '获取成功',
       })
     } else {
