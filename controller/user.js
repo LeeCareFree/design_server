@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-02 13:44:31
+ * @LastEditTime: 2021-04-02 15:17:04
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -239,12 +239,43 @@ class UserController {
   }
 
   /**
+   * 设置用户信息
+   * @param {*} ctx
+   * @param {*} next
+   */
+  async setting(ctx, next) {
+    try {
+      let { uid, nickname, avatar, gender, city, cost } = ctx.request.body
+      if (!uid) {
+        console.log(1111)
+        return (ctx.body = hints.CREATEFAIL({
+          data: 'uid未传！',
+          msg: '设置失败！',
+        }))
+      }
+
+      let result = await User.updateOne({ uid }, { nickname, city })
+      if (result.nModified) {
+        ctx.body = hints.SUCCESS({
+          msg: '更新成功！',
+        })
+      } else {
+        ctx.body = hints.UPDATE({
+          msg: '未做更改',
+        })
+      }
+    } catch (err) {
+      await next()
+    }
+  }
+
+  /**
    * 通过数组拿对应的列表
    * 作品、喜欢、收藏、关注、粉丝
    * @param {*} ctx
    */
   async getListByArr(ctx) {
-    let { uid, arrname = 'production' } = ctx.request.body
+    let { uid, arrname = 'production', page, size } = ctx.request.body
     let result = await User.findOne({ uid })
       .then((res) => {
         switch (arrname) {
@@ -266,6 +297,12 @@ class UserController {
           case 'like':
           case 'collection':
             return Article.aggregate([
+              {
+                $skip: Number(page - 1) * Number(size),
+              },
+              {
+                $limit: Number(size),
+              },
               {
                 $match: {
                   aid: { $in: arrData },

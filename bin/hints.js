@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 16:45:24
- * @LastEditTime: 2021-03-17 17:10:08
+ * @LastEditTime: 2021-04-02 15:08:51
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\bin\hints.js
@@ -28,11 +28,14 @@ const hints = {
   },
   LOGIN_PASSWORD_WRONG: { msg: "密码错误！", code: statusCode.LOGINFAIL, },
   LOGIN_USER_NOT_EXIST: { msg: "用户不存在！", code: statusCode.LOGINFAIL },
-  CREATEFAIL({ data = {} }) {
-    return { data, msg: '创建失败！', code: statusCode.ERROR }
+  CREATEFAIL({ data = {}, msg = "创建失败！" }) {
+    return { data, msg, code: statusCode.ERROR }
   },
   FINDFAIL(data) {
     return { msg: data.msg || '失败！', code: data.code || statusCode.ERROR };
+  },
+  UPDATE({msg}) {
+    return {msg: msg || '更新失败', code: statusCode.ERROR}
   },
   TOKEN_EXPIRED: { msg: "token过期，请重新登录！", code: statusCode.LOGINFAIL },
   TOKEN_INVALID: { msg: "token无效，请重新登录！", code: statusCode.LOGINFAIL },
