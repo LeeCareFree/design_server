@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-02 16:25:52
+ * @LastEditTime: 2021-04-02 18:20:07
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -333,7 +333,7 @@ class UserController {
    * @param {*} ctx
    */
   async getListByArr(ctx) {
-    let { uid, arrname = 'production', page, size } = ctx.request.body
+    let { uid, arrname = 'production', page = 1, size = 10 } = ctx.request.body
     let result = await User.findOne({ uid })
       .then((res) => {
         switch (arrname) {
@@ -356,15 +356,15 @@ class UserController {
           case 'collection':
             return Article.aggregate([
               {
+                $match: {
+                  aid: { $in: arrData },
+                },
+              },
+              {
                 $skip: Number(page - 1) * Number(size),
               },
               {
                 $limit: Number(size),
-              },
-              {
-                $match: {
-                  aid: { $in: arrData },
-                },
               },
               {
                 $lookup: {

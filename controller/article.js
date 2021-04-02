@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-04-02 17:36:00
+ * @LastEditTime: 2021-04-02 18:43:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -59,7 +59,7 @@ class ArticleController {
         detail,
         like, // 喜欢
         coll, // 收藏
-        createtime: new Date()*1,
+        createtime: new Date() * 1,
       }
       // 创建文章形式
       if (type === '1') {
@@ -143,11 +143,11 @@ class ArticleController {
         })
         // 图片形式
         result = await Article.create(newValue)
-      } else if(type === '3') {
+      } else if (type === '3') {
         const video = ctx.request.files.video
         url = uploadFilePublic(ctx, video, aid, 'videos')
         newValue = Object.assign(newValue, {
-          videoUrl: url
+          videoUrl: url,
         })
         result = await Article.create(newValue)
         result = newValue
@@ -235,8 +235,8 @@ class ArticleController {
 
   /**
    * 查询单个文章
-   * @param {*} ctx 
-   * @returns 
+   * @param {*} ctx
+   * @returns
    */
   async queryArticle(ctx) {
     let { aid } = ctx.request.body
@@ -274,7 +274,7 @@ class ArticleController {
     ]).then((res) => {
       let article = res[0]
       return Object.assign(article, {
-        createtime: formDate(article.createtime)
+        createtime: formDate(article.createtime),
       })
     })
 
@@ -317,11 +317,11 @@ class ArticleController {
       },
     ]).then((res) => {
       let comment = res[0]
-      if(comment) {
+      if (comment) {
         let comlist = comment.comlist
         comlist.forEach((item) => {
           Object.assign(item, {
-            commenttime: formDate(item.commenttime)
+            commenttime: formDate(item.commenttime),
           })
         })
         return comlist
@@ -346,10 +346,10 @@ class ArticleController {
    * @param {*} ctx
    */
   async getArticleList(ctx) {
-    let { page = 1, size = 10, way = '1' } = ctx.request.body
+    let { page = 1, size = 10, way = 'all', uid } = ctx.request.body
     let result
 
-    if (way == '1') {
+    if (way == 'all') {
       result = await Article.aggregate([
         {
           $skip: Number(page - 1) * Number(size),
@@ -386,7 +386,7 @@ class ArticleController {
           },
         },
       ])
-    } else if (way === '2') {
+    } else if (way === 'pic&text') {
       result = await Article.aggregate([
         {
           $match: {
@@ -428,6 +428,53 @@ class ArticleController {
           },
         },
       ])
+    } else if (way === 'attention') {
+      result = await User.find({ uid }).then((res) => {
+        let followArr = res[0].followArr
+        return Article.aggregate([
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'uid',
+              foreignField: 'uid',
+              as: 'user',
+            },
+          },
+          { $unwind: '$user' },
+          {
+            $match: {
+              "user.uid": {$in: followArr},
+            },
+          },
+          {
+            $skip: Number(page - 1) * Number(size),
+          },
+          {
+            $limit: Number(size),
+          },
+          {
+            $project: {
+              _id: 0,
+              __v: 0,
+              uid: 0,
+              desc: 0,
+              decoratestyle: 0,
+              decorateduration: 0,
+              decorateother: 0,
+              'user._id': 0,
+              'user.__v': 0,
+              'user.password': 0,
+              'user.likeArr': 0,
+              'user.collArr': 0,
+              'user.proArr': 0,
+              'user.followArr': 0,
+              'user.fansArr': 0,
+            },
+          },
+        ])
+      })
+    } else if(way === 'video') {
+      
     }
 
     if (result) {
