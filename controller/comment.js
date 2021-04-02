@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-16 15:28:30
- * @LastEditTime: 2021-03-16 20:44:05
+ * @LastEditTime: 2021-04-02 17:24:46
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\comment.js
@@ -26,7 +26,16 @@ class CommentController {
 
     let result = await Comment.updateOne(
       { aid: aid },
-      { $addToSet: { comlist: { cid: uuid.v4(), uid, content } } }
+      {
+        $addToSet: {
+          comlist: {
+            cid: uuid.v4(),
+            uid,
+            content,
+            commenttime: new Date() * 1,
+          },
+        },
+      }
     )
 
     if (result.nModified) {

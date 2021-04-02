@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-04-02 16:53:14
+ * @LastEditTime: 2021-04-02 17:36:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -315,13 +315,24 @@ class ArticleController {
           'comlist.user.fansArr': 0,
         },
       },
-    ])
+    ]).then((res) => {
+      let comment = res[0]
+      if(comment) {
+        let comlist = comment.comlist
+        comlist.forEach((item) => {
+          Object.assign(item, {
+            commenttime: formDate(item.commenttime)
+          })
+        })
+        return comlist
+      } else {
+        return res
+      }
+    })
 
     if (articleResult) {
       let article = articleResult
-      let comments = commentResult.length
-        ? commentResult[0].comlist
-        : commentResult
+      let comments = commentResult
       // 将查询的评论表添加入文章中
       article['comments'] = comments
       ctx.body = hints.SUCCESS({ data: article, msg: '文章查询成功！' })

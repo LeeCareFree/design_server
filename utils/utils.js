@@ -88,26 +88,55 @@ function deleteFilePublic(arr, dir = 'publish') {
 }
 
 function formDate(time) {
-  let date = new Date(time)
-  function formatTen(num) {
-    return num > 9 ? num : '0' + num
+  let timestamp = time / 1000
+  function zeroize(num) {
+    return (String(num).length == 1 ? '0' : '') + num
   }
 
-  var year = date.getFullYear()
-  var month = date.getMonth() + 1
-  var day = date.getDate()
-  var hour = date.getHours()
-  var minute = date.getMinutes()
-  var second = date.getSeconds()
-  return (
-    year +
-    '年' +
-    formatTen(month) +
-    '月' +
-    formatTen(day) +
-    '日 ' +
-    `${hour}:${minute}:${second}`
-  )
+  let curTimestamp = parseInt(new Date().getTime() / 1000)
+  let timestampDiff = curTimestamp - timestamp
+  let curDate = new Date(curTimestamp * 1000) //当前日期对象
+  let tmDate = new Date(timestamp * 1000) //当前时间戳转换为时间对象
+
+  let Y = tmDate.getFullYear(),
+    M = tmDate.getMonth() + 1,
+    D = tmDate.getDate()
+  let h = tmDate.getHours(),
+    m = tmDate.getMinutes(),
+    s = tmDate.getSeconds()
+
+  if (timestampDiff < 60) {
+    return '刚刚'
+  } else if (timestampDiff < 3600) {
+    return Math.floor(timestampDiff / 60) + '分钟前'
+  } else if (timestampDiff < 3600 * 24) {
+    return Math.floor(timestampDiff / 3600) + '小时前'
+  } else {
+    let newDate = new Date((curTimestamp - 86400) * 1000) // 参数中的时间戳加一天转换成的日期对象
+    if (
+      newDate.getFullYear() === Y &&
+      newDate.getMonth() === M &&
+      newDate.getSeconds() === D
+    ) {
+      return '昨天' + zeroize(h) + ':' + zeroize(m)
+    } else if (newDate.getFullYear() === Y) {
+      return (
+        zeroize(M) + '月' + zeroize(D) + '日 ' + zeroize(h) + ':' + zeroize(m)
+      )
+    } else {
+      return (
+        Y +
+        '年' +
+        zeroize(M) +
+        '月' +
+        zeroize(D) +
+        '日 ' +
+        zeroize(h) +
+        ':' +
+        zeroize(m)
+      )
+    }
+  }
 }
 
 module.exports = {
