@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-03-31 17:42:58
+ * @LastEditTime: 2021-04-02 16:53:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -59,7 +59,7 @@ class ArticleController {
         detail,
         like, // 喜欢
         coll, // 收藏
-        createtime: formDate(new Date()),
+        createtime: new Date()*1,
       }
       // 创建文章形式
       if (type === '1') {
@@ -233,6 +233,11 @@ class ArticleController {
     }
   }
 
+  /**
+   * 查询单个文章
+   * @param {*} ctx 
+   * @returns 
+   */
   async queryArticle(ctx) {
     let { aid } = ctx.request.body
     let articleResult = await Article.aggregate([
@@ -253,6 +258,7 @@ class ArticleController {
           _id: 0,
           __v: 0,
           uid: 0,
+          // createtime: formDate("$createtime"),
           'user._id': 0,
           'user.__v': 0,
           'user.password': 0,
@@ -265,7 +271,12 @@ class ArticleController {
           'comments._id': 0,
         },
       },
-    ])
+    ]).then((res) => {
+      let article = res[0]
+      return Object.assign(article, {
+        createtime: formDate(article.createtime)
+      })
+    })
 
     // 查评论表
     let commentResult = await Comment.aggregate([
@@ -306,8 +317,8 @@ class ArticleController {
       },
     ])
 
-    if (articleResult.length) {
-      let article = articleResult[0]
+    if (articleResult) {
+      let article = articleResult
       let comments = commentResult.length
         ? commentResult[0].comlist
         : commentResult

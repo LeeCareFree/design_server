@@ -87,7 +87,8 @@ function deleteFilePublic(arr, dir = 'publish') {
   }
 }
 
-function formDate(date) {
+function formDate(time) {
+  let date = new Date(time)
   function formatTen(num) {
     return num > 9 ? num : '0' + num
   }

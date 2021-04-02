@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-04-02 15:12:09
+ * @LastEditTime: 2021-04-02 16:33:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -19,6 +19,7 @@ module.exports = {
     password: String,
     avatar: String,
 		gender: Number,
+		introduction: String, // 个人简介
 		bgimg: String, // 默认背景图
 		progress: String, // 装修进度
 		city: String,
@@ -87,7 +88,7 @@ module.exports = {
     decorateduration: String,
     decorateother: String,
     videoUrl: String, // 视频连接
-    createtime: String,
+    createtime: Number,
   },
   comment: {
     aid: String,

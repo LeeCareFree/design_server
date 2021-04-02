@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-02 15:17:04
+ * @LastEditTime: 2021-04-02 16:25:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -17,6 +17,9 @@ let Article = dbHelper.getModel('article')
 const hints = require('../bin/hints')
 const crypto = require('crypto')
 const uuid = require('node-uuid')
+const path = require('path')
+
+const { uploadFilePublic, deleteFilePublic } = require('../utils/utils')
 /**
  * user Controller
  * Post login
@@ -72,7 +75,6 @@ class UserController {
               username: result.username,
               nickname: result.nickname,
               avatar: this.defaultAvatar,
-              bgimg: this.defaultBg,
               uid: result.uid,
               token: token,
             },
@@ -150,6 +152,7 @@ class UserController {
           nickname: `用户${Math.random().toString(36).slice(-6)}`,
           password: new UserController().mdsPassword(password),
           avatar: this.defaultAvatar,
+          bgimg: this.defaultBg,
           uid: uuid.v4(),
         })
         if (result) {
@@ -245,16 +248,71 @@ class UserController {
    */
   async setting(ctx, next) {
     try {
-      let { uid, nickname, avatar, gender, city, cost } = ctx.request.body
+      let {
+        uid,
+        avatarUrl,
+        bgimgUrl,
+        nickname,
+        gender,
+        introduction,
+        city,
+        cost,
+        progress,
+        doorModel,
+        area,
+        populace,
+        beginTime,
+        checkInTime,
+      } = ctx.request.body
+      let files = ctx.request.files
+      let aurl, burl, avatar, bgimg
+      if (files) {
+        avatar = files.avatar
+        bgimg = files.bgimg
+      }
+
       if (!uid) {
-        console.log(1111)
         return (ctx.body = hints.CREATEFAIL({
           data: 'uid未传！',
           msg: '设置失败！',
         }))
       }
 
-      let result = await User.updateOne({ uid }, { nickname, city })
+      if (avatar) {
+        let basename = path.basename(avatarUrl)
+        let regx = /^lee\.jpg$/i
+        if (!regx.test(basename)) {
+          deleteFilePublic(avatarUrl, 'avatar')
+        }
+        aurl = uploadFilePublic(ctx, avatar, uid, 'avatar')
+      }
+      if (bgimg) {
+        let basename = path.basename(bgimg)
+        let regx = /^defaultbg\.jpg$/i
+        if (!regx.test(basename)) {
+          deleteFilePublic(bgimgUrl, 'avatar')
+        }
+        burl = uploadFilePublic(ctx, bgimg, uid, 'avatar')
+      }
+
+      let result = await User.updateOne(
+        { uid },
+        {
+          nickname,
+          avatar: aurl,
+          bgimg: burl,
+          gender,
+          introduction,
+          city,
+          cost,
+          progress,
+          doorModel,
+          area,
+          populace,
+          beginTime,
+          checkInTime,
+        }
+      )
       if (result.nModified) {
         ctx.body = hints.SUCCESS({
           msg: '更新成功！',
