@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-01 20:06:11
+ * @LastEditTime: 2021-04-02 13:44:31
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -95,7 +95,6 @@ class UserController {
   async loginAdmin(ctx, next) {
     try {
       const { username, password } = xss(ctx.request.body.data)
-      console.log(password)
       var result = await Admin.findOne({
         username: username,
       })
@@ -306,6 +305,7 @@ class UserController {
             return User.find({ uid: { $in: arrData } }).then((users) => {
               if (users) {
                 let userArr = []
+                // 每个用户
                 users.forEach((user) => {
                   let u = {
                     avatar: user.avatar,
@@ -314,7 +314,12 @@ class UserController {
                     uid: user.uid,
                   }
                   let followArr = user.followArr
+                  let fansArr = user.fansArr
                   if (arrname === 'fans') {
+                    fansArr.indexOf(uid) >= 0
+                      ? (u.isFocus = true)
+                      : (u.isFocus = false)
+                  } else if (arrname === 'follow') {
                     followArr.indexOf(uid) >= 0
                       ? (u.isFocus = true)
                       : (u.isFocus = false)
@@ -330,9 +335,7 @@ class UserController {
       })
     if (result) {
       ctx.body = hints.SUCCESS({
-        data: {
-          result,
-        },
+        data: arrname === 'follow' || arrname === 'fans' ? { result } : result,
         msg: '获取成功',
       })
     } else {

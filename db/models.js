@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-04-01 17:11:39
+ * @LastEditTime: 2021-04-02 12:02:42
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -27,6 +27,10 @@ module.exports = {
 		cost: String, // 预算
 		beginTime: String, //开始装修时间
 		checkInTime: String, // 入住时间
+		identity: {
+			type: String,
+			default: "user"
+		}, // 身份: user、stylist、decoCompany
     likeArr: {
       type: Array,
       default: [],
@@ -48,34 +52,6 @@ module.exports = {
       default: [],
     },
   },
-	// 设计师表
-	stylist: {
-		uid: String,
-    username: String,
-    nickname: String,
-    password: String,
-    avatar: String,
-		likeArr: {
-      type: Array,
-      default: [],
-    },
-    collArr: {
-      type: Array,
-      default: [],
-    },
-    proArr: {
-      type: Array,
-      default: [],
-    },
-    followArr: {
-      type: Array,
-      default: [],
-    },
-    fansArr: {
-      type: Array,
-      default: [],
-    },
-	},
   // 发布作品
   home: {
     title: String,
