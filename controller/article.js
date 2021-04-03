@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-04-02 18:43:47
+ * @LastEditTime: 2021-04-03 13:26:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -115,6 +115,10 @@ class ArticleController {
                 )
                 Object.assign(item, {
                   imgList: Array.isArray(url) ? url : [url],
+                })
+              } else {
+                Object.assign(item, {
+                  imgList: []
                 })
               }
               descCopy.push(item)
