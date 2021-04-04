@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-04 21:04:30
+ * @LastEditTime: 2021-04-04 21:51:35
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -316,10 +316,10 @@ class UserController {
         aurl = uploadFilePublic(ctx, avatar, uid, 'avatar')
       }
       if (bgimg) {
-        let basename = path.basename(bgimg)
+        let basename = path.basename(bgimgUrl)
         let regx = /^defaultbg\.jpg$/i
         if (!regx.test(basename)) {
-          deleteFilePublic(bgimgUrl, 'avatar')
+          deleteFilePublic(bgimgUrl, 'bgimg')
         }
         burl = uploadFilePublic(ctx, bgimg, uid, 'bgimg')
       }
