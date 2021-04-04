@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-04 14:25:00
+ * @LastEditTime: 2021-04-04 20:09:09
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -220,6 +220,8 @@ class UserController {
             nickname: res.nickname,
             avatar: res.avatar,
             bgimg: res.bgimg,
+            introduction: res.introduction,
+            city: res.city,
             proNum: res.proArr.length,
             likeNum: res.likeArr.length,
             collNum: res.collArr.length,
@@ -325,11 +327,11 @@ class UserController {
         nickname,
         avatar: aurl,
         bgimg: burl,
+        introduction,
+        city,
         gender
       }
       let userInfoObj = {
-        introduction,
-        city,
         cost,
         progress,
         doorModel,

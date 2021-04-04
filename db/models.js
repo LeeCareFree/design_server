@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-04-04 14:27:10
+ * @LastEditTime: 2021-04-04 20:07:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -19,6 +19,8 @@ module.exports = {
     password: String,
     avatar: String,
 		gender: Number,
+    introduction: String, // 介绍
+    city: String, // 所在城市， 服务地区
     bgimg: String, // 默认背景图
 		identity: {
 			type: String,
@@ -87,9 +89,7 @@ module.exports = {
   },
   userinfo: {
     uid: String,
-    introduction: String, // 个人简介
 		progress: String, // 装修进度
-		city: String, // 所在城市， 服务地区
 		doorModel: String, // 户型
 		area: String, // 面积
 		populace: String, // 人口
@@ -98,10 +98,8 @@ module.exports = {
 		checkInTime: String, // 入住时间
   },
   decorationinfo: {
-    city: String, // 服务地区
     address: String, // 详细地址
     designfee: String, // 费用
-    introduction: String, 
     contact: String, // 联系方式
     appraise: Array
   }
