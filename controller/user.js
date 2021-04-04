@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-04 21:51:35
+ * @LastEditTime: 2021-04-04 22:00:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -313,7 +313,12 @@ class UserController {
         if (!regx.test(basename)) {
           deleteFilePublic(avatarUrl, 'avatar')
         }
-        aurl = uploadFilePublic(ctx, avatar, uid, 'avatar')
+        aurl = uploadFilePublic(
+          ctx,
+          avatar,
+          uid + '_' + new Date() * 1,
+          'avatar'
+        )
       }
       if (bgimg) {
         let basename = path.basename(bgimgUrl)
@@ -321,7 +326,7 @@ class UserController {
         if (!regx.test(basename)) {
           deleteFilePublic(bgimgUrl, 'bgimg')
         }
-        burl = uploadFilePublic(ctx, bgimg, uid, 'bgimg')
+        burl = uploadFilePublic(ctx, bgimg, uid + '_' + new Date() * 1, 'bgimg')
       }
 
       let userObj = {
@@ -330,7 +335,7 @@ class UserController {
         bgimg: burl,
         introduction,
         city,
-        gender
+        gender,
       }
       let userInfoObj = {
         cost,
