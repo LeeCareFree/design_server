@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-04 20:09:09
+ * @LastEditTime: 2021-04-04 20:13:56
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -219,6 +219,7 @@ class UserController {
             username: res.username,
             nickname: res.nickname,
             avatar: res.avatar,
+            gender: res.gender,
             bgimg: res.bgimg,
             introduction: res.introduction,
             city: res.city,
