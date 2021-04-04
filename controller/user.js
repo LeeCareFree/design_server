@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-04 20:13:56
+ * @LastEditTime: 2021-04-04 21:04:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -300,9 +300,9 @@ class UserController {
         bgimg = files.bgimg
       }
 
-      if (!uid) {
+      if (!uid || !avatarUrl || !nickname) {
         return (ctx.body = hints.CREATEFAIL({
-          data: 'uid未传！',
+          data: '必传参数未传！',
           msg: '设置失败！',
         }))
       }
@@ -321,7 +321,7 @@ class UserController {
         if (!regx.test(basename)) {
           deleteFilePublic(bgimgUrl, 'avatar')
         }
-        burl = uploadFilePublic(ctx, bgimg, uid, 'avatar')
+        burl = uploadFilePublic(ctx, bgimg, uid, 'bgimg')
       }
 
       let userObj = {
