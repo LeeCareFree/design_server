@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-02 18:20:07
+ * @LastEditTime: 2021-04-04 14:25:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -14,12 +14,18 @@ const dbHelper = require('../db/dpHelper')
 let User = dbHelper.getModel('user')
 let Admin = dbHelper.getModel('admin')
 let Article = dbHelper.getModel('article')
+let UserInfo = dbHelper.getModel('userinfo')
+let DecoInfo = dbHelper.getModel('decorationinfo')
 const hints = require('../bin/hints')
 const crypto = require('crypto')
 const uuid = require('node-uuid')
 const path = require('path')
 
-const { uploadFilePublic, deleteFilePublic } = require('../utils/utils')
+const {
+  uploadFilePublic,
+  deleteFilePublic,
+  removeEmpty,
+} = require('../utils/utils')
 /**
  * user Controller
  * Post login
@@ -140,21 +146,40 @@ class UserController {
   async register(ctx) {
     try {
       ctx.append('content-type', 'application/json')
-      let { username, password } = xss(ctx.request.body)
+      let { username, password, identity = 'user' } = xss(ctx.request.body)
       const result = await User.findOne({
         username: username,
       })
       if (result) {
         ctx.body = hints.REGISTER_UNAVAILABLE
       } else {
-        const result = await User.create({
+        let nickname,
+          uid = uuid.v4()
+        switch (identity) {
+          case 'user':
+            nickname = '用户'
+            break
+          case 'stylist':
+            nickname = '设计师'
+            break
+        }
+        const identityObj = {
           username: username,
-          nickname: `用户${Math.random().toString(36).slice(-6)}`,
+          nickname: `${nickname + Math.random().toString(36).slice(-6)}`,
           password: new UserController().mdsPassword(password),
           avatar: this.defaultAvatar,
           bgimg: this.defaultBg,
-          uid: uuid.v4(),
-        })
+          uid,
+          identity,
+        }
+
+        const result = await User.create(identityObj)
+        if (identity === 'user') {
+          await UserInfo.create({ uid })
+        } else {
+          await DecoInfo.create({ uid })
+        }
+
         if (result) {
           ctx.body = hints.SUCCESS({
             data: {
@@ -162,6 +187,7 @@ class UserController {
               avatar: this.defaultAvatar,
               uid: result.uid,
               nickname: result.nickname,
+              identity,
             },
             msg: '注册成功！',
           })
@@ -253,7 +279,7 @@ class UserController {
         avatarUrl,
         bgimgUrl,
         nickname,
-        gender,
+        gender = Number(gender),
         introduction,
         city,
         cost,
@@ -295,25 +321,31 @@ class UserController {
         burl = uploadFilePublic(ctx, bgimg, uid, 'avatar')
       }
 
-      let result = await User.updateOne(
-        { uid },
-        {
-          nickname,
-          avatar: aurl,
-          bgimg: burl,
-          gender,
-          introduction,
-          city,
-          cost,
-          progress,
-          doorModel,
-          area,
-          populace,
-          beginTime,
-          checkInTime,
-        }
-      )
+      let userObj = {
+        nickname,
+        avatar: aurl,
+        bgimg: burl,
+        gender
+      }
+      let userInfoObj = {
+        introduction,
+        city,
+        cost,
+        progress,
+        doorModel,
+        area,
+        populace,
+        beginTime,
+        checkInTime,
+      }
+
+      // 移除空属性
+      removeEmpty(userObj)
+      removeEmpty(userInfoObj)
+
+      let result = await User.updateOne({ uid }, userObj)
       if (result.nModified) {
+        await UserInfo.updateOne({ uid }, userInfoObj)
         ctx.body = hints.SUCCESS({
           msg: '更新成功！',
         })

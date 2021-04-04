@@ -139,8 +139,14 @@ function formDate(time) {
   }
 }
 
+function removeEmpty(obj) {
+  Object.keys(obj).forEach((key) => ((obj[key] === null || obj[key] === undefined) && delete obj[key]))
+  return obj
+}
+
 module.exports = {
   uploadFilePublic,
   deleteFilePublic,
   formDate,
+  removeEmpty
 }
