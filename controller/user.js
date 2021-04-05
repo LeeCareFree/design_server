@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-04 22:00:49
+ * @LastEditTime: 2021-04-05 20:30:24
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -309,7 +309,7 @@ class UserController {
 
       if (avatar) {
         let basename = path.basename(avatarUrl)
-        let regx = /^lee\.jpg$/i
+        let regx = /^lee\.jpg$/g
         if (!regx.test(basename)) {
           deleteFilePublic(avatarUrl, 'avatar')
         }
@@ -322,7 +322,7 @@ class UserController {
       }
       if (bgimg) {
         let basename = path.basename(bgimgUrl)
-        let regx = /^defaultbg\.jpg$/i
+        let regx = /^defaultbg\.jpg$/g
         if (!regx.test(basename)) {
           deleteFilePublic(bgimgUrl, 'bgimg')
         }
@@ -331,8 +331,8 @@ class UserController {
 
       let userObj = {
         nickname,
-        avatar: aurl,
-        bgimg: burl,
+        avatar: aurl || avatarUrl,
+        bgimg: burl || bgimgUrl,
         introduction,
         city,
         gender,
@@ -355,6 +355,7 @@ class UserController {
       if (result.nModified) {
         await UserInfo.updateOne({ uid }, userInfoObj)
         ctx.body = hints.SUCCESS({
+          data: userObj || userInfoObj,
           msg: '更新成功！',
         })
       } else {
@@ -364,6 +365,17 @@ class UserController {
       }
     } catch (err) {
       await next()
+    }
+  }
+
+  async getHomeInfo(ctx, next) {
+    try {
+      let { uid } = ctx.request.body
+      let result = await User.findOne({uid}).then((res) => {
+        
+      })
+    } catch (err) {
+      next()
     }
   }
 

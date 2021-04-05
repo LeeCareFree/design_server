@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-06 11:48:27
- * @LastEditTime: 2021-04-02 14:00:32
+ * @LastEditTime: 2021-04-05 15:11:04
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\home.js
@@ -34,7 +34,8 @@ class HomeController {
             reValue.push({
               img: item.type === '2' ? item.imgList[0] : item.cover,
               title: item.title,
-              aid: item.aid
+              aid: item.aid,
+              type: item.type
             })
           })
           return reValue
