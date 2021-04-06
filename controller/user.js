@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-05 20:30:24
+ * @LastEditTime: 2021-04-06 13:38:41
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -15,7 +15,7 @@ let User = dbHelper.getModel('user')
 let Admin = dbHelper.getModel('admin')
 let Article = dbHelper.getModel('article')
 let UserInfo = dbHelper.getModel('userinfo')
-let DecoInfo = dbHelper.getModel('decorationinfo')
+let DecoInfo = dbHelper.getModel('decorateinfo')
 const hints = require('../bin/hints')
 const crypto = require('crypto')
 const uuid = require('node-uuid')
@@ -26,6 +26,7 @@ const {
   deleteFilePublic,
   removeEmpty,
 } = require('../utils/utils')
+const { MongoUserAcountInfo } = require('../utils/monCommon')
 /**
  * user Controller
  * Post login
@@ -209,48 +210,7 @@ class UserController {
   async getAccountInfo(ctx) {
     try {
       const { uid } = ctx.request.body
-      let userInfo = {}
-      const result = await User.findOne({
-        uid: uid,
-      })
-        .then((res) => {
-          Object.assign(userInfo, {
-            uid: res.uid,
-            username: res.username,
-            nickname: res.nickname,
-            avatar: res.avatar,
-            gender: res.gender,
-            bgimg: res.bgimg,
-            introduction: res.introduction,
-            city: res.city,
-            proNum: res.proArr.length,
-            likeNum: res.likeArr.length,
-            collNum: res.collArr.length,
-            fansNum: res.fansArr.length,
-            followNum: res.followArr.length,
-          })
-          return Article.aggregate([
-            {
-              $match: {
-                aid: { $in: res.proArr },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                total: { $add: ['$like', '$coll'] },
-              },
-            },
-          ])
-        })
-        .then((res) => {
-          let sum = res.reduce((prev, cur) => {
-            return prev + cur.total
-          }, 0)
-          return Object.assign(userInfo, {
-            like_coll: sum,
-          })
-        })
+      let result = await MongoUserAcountInfo(uid)
       if (result) {
         ctx.body = hints.SUCCESS({
           data: result,
@@ -282,16 +242,9 @@ class UserController {
         avatarUrl,
         bgimgUrl,
         nickname,
-        gender = Number(gender),
+        gender,
         introduction,
         city,
-        cost,
-        progress,
-        doorModel,
-        area,
-        populace,
-        beginTime,
-        checkInTime,
       } = ctx.request.body
       let files = ctx.request.files
       let aurl, burl, avatar, bgimg
@@ -331,31 +284,22 @@ class UserController {
 
       let userObj = {
         nickname,
-        avatar: aurl || avatarUrl,
-        bgimg: burl || bgimgUrl,
+        avatar: aurl,
+        bgimg: burl,
         introduction,
         city,
-        gender,
-      }
-      let userInfoObj = {
-        cost,
-        progress,
-        doorModel,
-        area,
-        populace,
-        beginTime,
-        checkInTime,
+        gender: parseInt(gender),
       }
 
       // 移除空属性
       removeEmpty(userObj)
-      removeEmpty(userInfoObj)
 
       let result = await User.updateOne({ uid }, userObj)
+
       if (result.nModified) {
-        await UserInfo.updateOne({ uid }, userInfoObj)
+        let userAcountInfo = await MongoUserAcountInfo(uid)
         ctx.body = hints.SUCCESS({
-          data: userObj || userInfoObj,
+          data: userAcountInfo,
           msg: '更新成功！',
         })
       } else {
@@ -368,12 +312,79 @@ class UserController {
     }
   }
 
-  async getHomeInfo(ctx, next) {
+  async setupDetails(ctx, next) {
     try {
-      let { uid } = ctx.request.body
-      let result = await User.findOne({uid}).then((res) => {
-        
-      })
+      let {
+        identity = 'user',
+        uid,
+        city,
+        cost,
+        progress,
+        doorModel,
+        area,
+        populace,
+        beginTime,
+        checkInTime,
+      } = ctx.request.body
+      let userInfoObj = {
+        city,
+        cost,
+        progress,
+        doorModel,
+        area,
+        populace,
+        beginTime,
+        checkInTime,
+      }
+      removeEmpty(userInfoObj)
+      let result
+      switch (identity) {
+        case 'user':
+          result = await UserInfo.updateOne({ uid }, userInfoObj).then(
+            (res) => {
+              if (res.nModified) {
+                return UserInfo.findOne({ uid })
+              }
+            }
+          )
+          break
+        case 'decorate':
+          return '1111'
+      }
+      if (result) {
+        ctx.body = hints.SUCCESS({
+          data: result,
+          msg: '更新成功！',
+        })
+      } else {
+        ctx.body = hints.UPDATE({
+          msg: '未做更改',
+        })
+      }
+    } catch (err) {
+      next()
+    }
+  }
+
+  async getDetailInfo(ctx, next) {
+    try {
+      let { uid, identity = 'user' } = ctx.request.body
+      let result
+
+      switch (identity) {
+        case 'user':
+          result = await UserInfo.findOne({ uid })
+          break
+
+        default:
+          break
+      }
+      if (result) {
+        ctx.body = hints.SUCCESS({
+          data: result,
+          msg: '获取详情信息成功！',
+        })
+      }
     } catch (err) {
       next()
     }

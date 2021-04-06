@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-04-04 20:07:19
+ * @LastEditTime: 2021-04-06 13:04:35
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -89,6 +89,7 @@ module.exports = {
   },
   userinfo: {
     uid: String,
+    city: String,
 		progress: String, // 装修进度
 		doorModel: String, // 户型
 		area: String, // 面积
@@ -97,7 +98,8 @@ module.exports = {
 		beginTime: String, //开始装修时间
 		checkInTime: String, // 入住时间
   },
-  decorationinfo: {
+  decorateinfo: {
+    uid: String,
     address: String, // 详细地址
     designfee: String, // 费用
     contact: String, // 联系方式
