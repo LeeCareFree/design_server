@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-06 13:38:41
+ * @LastEditTime: 2021-04-07 14:20:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -120,9 +120,6 @@ class UserController {
               expiresIn: '7d', //到期时间
             }
           )
-          ctx.body = {
-            data: 'sssss',
-          }
           ctx.body = hints.SUCCESS({
             data: {
               username: result.username,
@@ -161,7 +158,7 @@ class UserController {
             nickname = '用户'
             break
           case 'stylist':
-            nickname = '设计师'
+            nickname = '设计'
             break
         }
         const identityObj = {
@@ -288,7 +285,7 @@ class UserController {
         bgimg: burl,
         introduction,
         city,
-        gender: parseInt(gender),
+        gender: gender && parseInt(gender),
       }
 
       // 移除空属性
@@ -325,21 +322,29 @@ class UserController {
         populace,
         beginTime,
         checkInTime,
+
+        styletype, // 个人设计|设计公司
+        address, // 详细地址
+        stylearr, // 风格
+        designfee, // 费用
+        phone, // 联系方式
+        service, // 服务介绍
       } = ctx.request.body
-      let userInfoObj = {
-        city,
-        cost,
-        progress,
-        doorModel,
-        area,
-        populace,
-        beginTime,
-        checkInTime,
-      }
-      removeEmpty(userInfoObj)
+
       let result
       switch (identity) {
         case 'user':
+          let userInfoObj = {
+            city,
+            cost,
+            progress,
+            doorModel,
+            area,
+            populace,
+            beginTime,
+            checkInTime,
+          }
+          removeEmpty(userInfoObj)
           result = await UserInfo.updateOne({ uid }, userInfoObj).then(
             (res) => {
               if (res.nModified) {
@@ -348,8 +353,26 @@ class UserController {
             }
           )
           break
-        case 'decorate':
-          return '1111'
+        case 'stylist':
+          let stylistInfo = {
+            city, // 服务城市
+            styletype,
+            address,
+            stylearr,
+            designfee: parseInt(designfee),
+            phone,
+            service,
+          }
+          removeEmpty(stylistInfo)
+          console.log(stylistInfo)
+          result = await DecoInfo.updateOne({ uid }, stylistInfo).then(
+            (res) => {
+              if (res.nModified) {
+                return DecoInfo.findOne({ uid })
+              }
+            }
+          )
+          break
       }
       if (result) {
         ctx.body = hints.SUCCESS({
