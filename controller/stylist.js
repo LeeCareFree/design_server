@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-25 16:55:20
- * @LastEditTime: 2021-04-07 12:48:28
+ * @LastEditTime: 2021-04-07 16:40:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\shopping.js
@@ -17,18 +17,8 @@ class StylistController {
 
   async getStylistList(ctx) {
     let { page = 1, size = 10 } = ctx.request.body
+
     let result = await User.aggregate([
-      {
-        $match: {
-          identity: 'stylist',
-        },
-      },
-      {
-        $skip: Number(page - 1) * Number(size),
-      },
-      {
-        $limit: Number(size),
-      },
       {
         $lookup: {
           from: 'decorateinfos',
@@ -38,6 +28,17 @@ class StylistController {
         },
       },
       { $unwind: '$detailInfo' },
+      {
+        $match: {
+          $and: [{ identity: 'stylist' }],
+        },
+      },
+      {
+        $skip: Number(page - 1) * Number(size),
+      },
+      {
+        $limit: Number(size),
+      },
       {
         $project: {
           _id: 0,

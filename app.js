@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-01 17:25:36
+ * @LastEditTime: 2021-04-07 19:57:11
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\app.js
@@ -66,12 +66,12 @@ app.use(views(__dirname + '/views', {
 }))
 
 
-app.use(jwtKoa({
-  secret: secret
-}).unless({
-  path: [/^\/api\/users\/login/,/^\/api\/users\/register/,/^\/api\/token\/*/,/^\/api\/admin\/login/]
-}));
-app.use(checkToken());
+// app.use(jwtKoa({
+//   secret: secret
+// }).unless({
+//   path: [/^\/api\/users\/login/,/^\/api\/users\/register/,/^\/api\/token\/*/,/^\/api\/admin\/login/]
+// }));
+// app.use(checkToken());
 
 app.use(koaBody({
   multipart: true,

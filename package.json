@@ -36,6 +36,7 @@
     "mongoose": "^5.10.8",
     "node-xss": "0.0.1",
     "pm2": "^4.5.0",
+    "socket.io": "^2.3.0",
     "util": "^0.12.3"
   },
   "devDependencies": {
