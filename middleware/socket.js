@@ -11,34 +11,29 @@ var usocket = {},
 
 module.exports = (socket) => {
   //成员对象数组
-  socket.on('new user', (username) => {
-    // console.log(socket)
-    if (!(username in usocket)) {
-      socket.username = username
-      usocket[username] = socket
-      console.log(usocket)
-      user.push(username)
-      socket.emit('login', user)
-      socket.broadcast.emit('user joined', username, user.length - 1)
-      console.log(user)
+  socket.on('createUser', (uid) => {
+    if (!(uid in usocket)) {
+      socket.uid = uid
+      usocket[uid] = socket
+      user.push(uid)
+      socket.broadcast.emit('userEnter', uid, user.length - 1)
     }
   })
 
-  socket.on('send private message', function (res) {
-    console.log(res)
-    if (res.recipient in usocket) {
-      usocket[res.recipient].emit('receive private message', res)
+  socket.on('sendMessage', (res) => {
+    // usocket[res.uid].emit('getMessage', res)
+    if (res.guid in usocket) {
+      usocket[res.guid].emit('getMessage', res)
     }
   })
 
   socket.on('disconnect', function () {
     //移除
-    if (socket.username in usocket) {
-      delete usocket[socket.username]
-      user.splice(user.indexOf(socket.username), 1)
+    if (socket.uid in usocket) {
+      delete usocket[socket.uid]
+      user.splice(user.indexOf(socket.uid), 1)
     }
-    console.log(user)
-    socket.broadcast.emit('user left', socket.username)
+    socket.broadcast.emit('userLeft', socket.uid)
   })
   // })
 }
