@@ -22,6 +22,7 @@ let getMessageList = async (uid) => {
       time: formDate(item.time),
     })
   })
+  return list;
 }
 
 module.exports = (socket) => {
@@ -43,7 +44,7 @@ module.exports = (socket) => {
 
   // 该用户进入对话框，在该用户的socket里加入一个对方uid的属性
   socket.on('enterChat', (uid) => {
-    
+
   })
 
   socket.on('sendMessage', async (res) => {
@@ -145,16 +146,16 @@ module.exports = (socket) => {
 
   })
 
-  socket.on('messageList', (uid) => {
-    let messagelist = getMessageList(uid)
+  socket.on('messageList', async (uid) => {
+    let messagelist = await getMessageList(uid)
     if (uid in usocket) {
-      usocket[uid].emit('getMessageList', messagelist)
+      usocket[uid].emit('getMessageList', {"messlist": messagelist})
     }
   })
 
-  socket.on('messageDetail', (data) => {
+  socket.on('messageDetail', async(data) => {
     let { uid, guid } = data
-    let result = MessDetail.findOne({
+    let result = await MessDetail.findOne({
       uid2: uid + '&' + guid || guid + '&' + uid,
     })
 
@@ -164,7 +165,9 @@ module.exports = (socket) => {
         time: formDate(item.time),
       })
     })
+    console.log(uid)
     if (uid in usocket) {
+      console.log(result)
       usocket[uid].emit('getMessageDetail', result)
     }
   })
