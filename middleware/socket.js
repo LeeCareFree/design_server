@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 16:50:57
- * @LastEditTime: 2021-04-09 14:06:44
+ * @LastEditTime: Fri Apr 09 2021 19:44:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\middleware\socket.js
@@ -13,6 +13,16 @@ const MessDetail = dbHelper.getModel('messdetail')
 const { formDate } = require('../utils/utils')
 const usocket = {},
   user = []
+
+let getMessageList = async (uid) => {
+  let result = await Message.findOne({ uid })
+  let list = result.messlist
+  list.forEach((item) => {
+    Object.assign(item, {
+      time: formDate(item.time),
+    })
+  })
+}
 
 module.exports = (socket) => {
   //成员对象数组
@@ -29,6 +39,11 @@ module.exports = (socket) => {
       socket.broadcast.emit('userEnter', uid, user.length - 1)
       console.log(user)
     }
+  })
+
+  // 该用户进入对话框，在该用户的socket里加入一个对方uid的属性
+  socket.on('enterChat', (uid) => {
+    
   })
 
   socket.on('sendMessage', async (res) => {
@@ -52,11 +67,12 @@ module.exports = (socket) => {
       nickname: getUser.nickname,
       avatar: getUser.avatar,
       message,
+      messNum: 0,
       time: new Date() * 1,
     }
 
     // 给收信息方(g)的消息列表里添加发送方的信息
-    Message.findOne({ uid: guid }).then((res) => {
+    await Message.findOne({ uid: guid }).then((res) => {
       let list = res.messlist
       let i = list.findIndex((val) => val.uid === uid)
       if (i !== -1) {
@@ -68,7 +84,7 @@ module.exports = (socket) => {
       return Message.updateOne({ uid: guid }, { messlist: list })
     })
     // 给发送方(s)的消息列表里添加收信息方的信息
-    Message.findOne({ uid }).then((res) => {
+    await Message.findOne({ uid }).then((res) => {
       let list = res.messlist
       let i = list.findIndex((val) => val.uid === guid)
       if (i !== -1) {
@@ -79,13 +95,23 @@ module.exports = (socket) => {
       }
       return Message.updateOne({ uid }, { messlist: list })
     })
-
+    // 创建两个消息详情表
     await MessDetail.updateOne(
       {
-        $or: [{ uid2: uid + '&' + guid }, { uid2: guid + '&' + uid }],
+        uid2: uid + '&' + guid,
       },
       {
         uid2: uid + '&' + guid,
+        $addToSet: {
+          detaillist: sendItem,
+        },
+      },
+      { upsert: true }
+    )
+    await MessDetail.updateOne(
+      { uid2: guid + '&' + uid },
+      {
+        uid2: guid + '&' + uid,
         $addToSet: {
           detaillist: sendItem,
         },
@@ -101,27 +127,36 @@ module.exports = (socket) => {
           time: formDate(sendItem.time),
         })
       )
+      let messagelist = getMessageList(guid)
+      // 通知接收方更新列表
+      usocket[guid].emit('getMessageList', messagelist)
+
+      // 接收方在线，且不在对话框
+      // if(false) {
+      //   await Message.findOne({uid: guid}).then((res) => {
+      //     let list = res.messlist
+      //     list.map((item) => {
+
+      //     })
+      //   })
+      // }
     }
+
+
   })
 
-  socket.on('messageList', async (uid) => {
-    let result = await Message.findOne({ uid })
-
-    let list = result.messlist
-    list.forEach((item) => {
-      Object.assign(item, {
-        time: formDate(item.time),
-      })
-    })
-    console.log('messagelist:', result)
-    if(uid in usocket) {
-      usocket[uid].emit('getMessageList', result)
+  socket.on('messageList', (uid) => {
+    let messagelist = getMessageList(uid)
+    if (uid in usocket) {
+      usocket[uid].emit('getMessageList', messagelist)
     }
   })
 
   socket.on('messageDetail', (data) => {
     let { uid, guid } = data
-    let result = MessDetail.findOne({ uid2: uid + '&' + guid || guid + '&' + uid })
+    let result = MessDetail.findOne({
+      uid2: uid + '&' + guid || guid + '&' + uid,
+    })
 
     let list = result.detaillist
     list.forEach((item) => {
@@ -129,7 +164,7 @@ module.exports = (socket) => {
         time: formDate(item.time),
       })
     })
-    if(uid in usocket) {
+    if (uid in usocket) {
       usocket[uid].emit('getMessageDetail', result)
     }
   })

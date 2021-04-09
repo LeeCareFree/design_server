@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-25 16:55:20
- * @LastEditTime: Fri Apr 09 2021 16:36:12
+ * @LastEditTime: Fri Apr 09 2021 18:09:51
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\shopping.js
@@ -35,7 +35,12 @@ class StylistController {
           $and: [
             { identity: 'stylist' },
             { 'detailInfo.designfee': compareDesignFee(designfee) },
-            { 'detailInfo.stylearr': { $all: stylearr } },
+            {
+              'detailInfo.stylearr': stylearr
+                ? { $all: stylearr }
+                : { $regex: /.*/ },
+            },
+            { 'detailInfo.service': service ? {} : {} },
           ],
         },
       },

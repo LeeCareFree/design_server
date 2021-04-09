@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: Fri Apr 09 2021 16:30:42
+ * @LastEditTime: Fri Apr 09 2021 17:26:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -105,7 +105,7 @@ module.exports = {
     stylearr: Array, // 风格
     designfee: Number, // 费用
     phone: String, // 联系方式
-    service: String, // 服务介绍
+    service: Array, // 服务介绍
   },
   message: {
     uid: String,

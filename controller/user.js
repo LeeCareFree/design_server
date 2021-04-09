@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: Fri Apr 09 2021 16:38:24
+ * @LastEditTime: Fri Apr 09 2021 17:30:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -357,7 +357,7 @@ class UserController {
             city, // 服务城市
             address,
             stylearr,
-            designfee: parseInt(designfee),
+            designfee: designfee && iparseInt(designfee),
             phone,
             service,
           }
