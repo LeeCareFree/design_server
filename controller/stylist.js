@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-25 16:55:20
- * @LastEditTime: 2021-04-09 14:57:12
+ * @LastEditTime: Fri Apr 09 2021 16:36:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\shopping.js
@@ -11,25 +11,14 @@ const dbHelper = require('../db/dpHelper')
 const Article = dbHelper.getModel('article')
 let DecoInfo = dbHelper.getModel('decorateinfo')
 let User = dbHelper.getModel('user')
+let { compareDesignFee } = require('../utils/monCommon')
 
 class StylistController {
   constructor() {}
 
   async getStylistList(ctx) {
-    let { page = 1, size = 10, designfee } = ctx.request.body
+    let { page = 1, size = 10, designfee, stylearr } = ctx.request.body
     console.log(designfee)
-
-    function compareDesignFee(fee) {
-      let statement
-      switch (fee) {
-        case '不限':
-        case undefined:
-          statement = { $gt: 0 }
-        case '':
-        default:
-          break
-      }
-    }
 
     let result = await User.aggregate([
       {
@@ -46,6 +35,7 @@ class StylistController {
           $and: [
             { identity: 'stylist' },
             { 'detailInfo.designfee': compareDesignFee(designfee) },
+            { 'detailInfo.stylearr': { $all: stylearr } },
           ],
         },
       },

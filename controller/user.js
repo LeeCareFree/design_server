@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: 2021-04-07 14:20:00
+ * @LastEditTime: Fri Apr 09 2021 16:38:24
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -81,7 +81,7 @@ class UserController {
             data: {
               username: result.username,
               nickname: result.nickname,
-              avatar: this.defaultAvatar,
+              avatar: result.avatar,
               uid: result.uid,
               token: token,
             },
@@ -323,7 +323,6 @@ class UserController {
         beginTime,
         checkInTime,
 
-        styletype, // 个人设计|设计公司
         address, // 详细地址
         stylearr, // 风格
         designfee, // 费用
@@ -356,7 +355,6 @@ class UserController {
         case 'stylist':
           let stylistInfo = {
             city, // 服务城市
-            styletype,
             address,
             stylearr,
             designfee: parseInt(designfee),

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-06 12:37:30
- * @LastEditTime: 2021-04-06 12:52:03
+ * @LastEditTime: Fri Apr 09 2021 16:32:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\utils\monCommon.js
@@ -55,6 +55,43 @@ let MongoUserAcountInfo = (uid) => {
     })
 }
 
+/**
+ * @description: 价格比较
+ * @param {*} fee
+ * @return {*}
+ */
+let compareDesignFee = (fee) => {
+  let statement
+  switch (fee) {
+    case '不限':
+    case undefined:
+      statement = { $gt: 0 }
+      break
+    case '99元/㎡以下':
+      statement = { $lt: 99 }
+      break
+    case '99元/㎡-199元/㎡':
+      statement = { $gte: 99, $lt: 199 }
+      break
+    case '199元/㎡-299元/㎡':
+      statement = { $gte: 199, $lt: 299 }
+      break
+    case '299元/㎡-399元/㎡':
+      statement = { $gte: 199, $lt: 299 }
+      break
+    case '399元/㎡-499元/㎡':
+      statement = { $gte: 199, $lt: 299 }
+      break
+    case '499元/㎡以上':
+      statement = { $gte: 499 }
+      break
+    default:
+      break
+  }
+  return statement
+}
+
 module.exports = {
   MongoUserAcountInfo,
+  compareDesignFee
 }

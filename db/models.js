@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: 2021-04-09 10:15:00
+ * @LastEditTime: Fri Apr 09 2021 16:30:42
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
@@ -101,7 +101,6 @@ module.exports = {
   decorateinfo: {
     uid: String,
     city: String, // 服务地区
-    styletype: String, // 个人设计|设计公司
     address: String, // 详细地址
     stylearr: Array, // 风格
     designfee: Number, // 费用
