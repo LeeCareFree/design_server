@@ -139,8 +139,50 @@ function formDate(time) {
   }
 }
 
+function formDate2(time) {
+  let timestamp = time / 1000
+  function zeroize(num) {
+    return (String(num).length == 1 ? '0' : '') + num
+  }
+
+  let curTimestamp = parseInt(new Date().getTime() / 1000)
+  let timestampDiff = curTimestamp - timestamp
+  let tmDate = new Date(timestamp * 1000) //当前时间戳转换为时间对象
+
+  let Y = tmDate.getFullYear(),
+    M = tmDate.getMonth() + 1,
+    D = tmDate.getDate()
+  let h = tmDate.getHours(),
+    m = tmDate.getMinutes(),
+    s = tmDate.getSeconds()
+  if (timestampDiff < 3600 * 24) {
+    return zeroize(h) + ':' + zeroize(m) + ':' + zeroize(s)
+  } else {
+    let newDate = new Date((curTimestamp - 86400) * 1000) // 参数中的时间戳加一天转换成的日期对象
+    if (newDate.getFullYear() === Y) {
+      return (
+        zeroize(M) + '月' + zeroize(D) + '日 ' + zeroize(h) + ':' + zeroize(m)
+      )
+    } else {
+      return (
+        Y +
+        '年' +
+        zeroize(M) +
+        '月' +
+        zeroize(D) +
+        '日 ' +
+        zeroize(h) +
+        ':' +
+        zeroize(m)
+      )
+    }
+  }
+}
+
 function removeEmpty(obj) {
-  Object.keys(obj).forEach((key) => ((obj[key] === null || obj[key] === undefined) && delete obj[key]))
+  Object.keys(obj).forEach(
+    (key) => (obj[key] === null || obj[key] === undefined) && delete obj[key]
+  )
   return obj
 }
 
@@ -148,5 +190,6 @@ module.exports = {
   uploadFilePublic,
   deleteFilePublic,
   formDate,
-  removeEmpty
+  formDate2,
+  removeEmpty,
 }

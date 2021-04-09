@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-25 16:55:20
- * @LastEditTime: 2021-04-07 16:40:19
+ * @LastEditTime: 2021-04-09 14:57:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\shopping.js
@@ -16,7 +16,20 @@ class StylistController {
   constructor() {}
 
   async getStylistList(ctx) {
-    let { page = 1, size = 10 } = ctx.request.body
+    let { page = 1, size = 10, designfee } = ctx.request.body
+    console.log(designfee)
+
+    function compareDesignFee(fee) {
+      let statement
+      switch (fee) {
+        case '不限':
+        case undefined:
+          statement = { $gt: 0 }
+        case '':
+        default:
+          break
+      }
+    }
 
     let result = await User.aggregate([
       {
@@ -30,7 +43,10 @@ class StylistController {
       { $unwind: '$detailInfo' },
       {
         $match: {
-          $and: [{ identity: 'stylist' }],
+          $and: [
+            { identity: 'stylist' },
+            { 'detailInfo.designfee': compareDesignFee(designfee) },
+          ],
         },
       },
       {
