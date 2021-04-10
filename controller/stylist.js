@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-25 16:55:20
- * @LastEditTime: Sat Apr 10 2021 16:21:25
+ * @LastEditTime: Sat Apr 10 2021 16:39:20
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\shopping.js
@@ -40,7 +40,11 @@ class StylistController {
                 ? { $all: stylearr }
                 : { $regex: /.*/ },
             },
-            { 'detailInfo.service': service ? {} : {$regex: /.*/} },
+            {
+              'detailInfo.service': service
+                ? { $all: service }
+                : { $regex: /.*/ },
+            },
           ],
         },
       },
@@ -104,7 +108,7 @@ class StylistController {
         msg: '获取列表成功',
       })
     } else {
-      ctx.body = hints.FINDFAIL({msg: '获取失败'})
+      ctx.body = hints.FINDFAIL({ msg: '获取失败' })
     }
   }
 }
