@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: Sat Apr 10 2021 13:39:13
- * @LastEditTime: Sat Apr 10 2021 16:20:22
+ * @LastEditTime: Sat Apr 10 2021 19:17:09
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\message.js
@@ -40,10 +40,26 @@ class MessageController {
       if (result) {
         ctx.body = result
       } else {
-        ctx.body = hints.FINDFAIL({msg: '查询失败'})
+        ctx.body = hints.FINDFAIL({ msg: '查询失败' })
       }
     } catch (err) {
       next()
+    }
+  }
+
+  async getListSum(ctx) {
+    let { uid, guid } = ctx.request.body
+    let uid2 = uid + '&' + guid
+    let result = await MessDetail.findOne({ uid2 }, { sum: 1, _id: 0 })
+    if (result) {
+      ctx.body = hints.SUCCESS({
+        data: result,
+        msg: '获取消息列表总数成功！',
+      })
+    } else {
+      ctx.body = hints.FINDFAIL({
+        msg: '获取失败',
+      })
     }
   }
 }
