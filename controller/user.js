@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-09 11:26:39
- * @LastEditTime: Fri Apr 09 2021 17:30:03
+ * @LastEditTime: Sat Apr 10 2021 16:21:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\controller\user.js
@@ -518,7 +518,7 @@ class UserController {
         msg: '获取成功',
       })
     } else {
-      ctx.body = hints.FINDFAIL()
+      ctx.body = hints.FINDFAIL({ msg: '获取失败' })
     }
   }
 

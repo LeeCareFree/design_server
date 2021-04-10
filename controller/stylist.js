@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-25 16:55:20
- * @LastEditTime: Fri Apr 09 2021 18:09:51
+ * @LastEditTime: Sat Apr 10 2021 16:21:25
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\shopping.js
@@ -17,7 +17,7 @@ class StylistController {
   constructor() {}
 
   async getStylistList(ctx) {
-    let { page = 1, size = 10, designfee, stylearr } = ctx.request.body
+    let { page = 1, size = 10, designfee, stylearr, service } = ctx.request.body
     console.log(designfee)
 
     let result = await User.aggregate([
@@ -40,7 +40,7 @@ class StylistController {
                 ? { $all: stylearr }
                 : { $regex: /.*/ },
             },
-            { 'detailInfo.service': service ? {} : {} },
+            { 'detailInfo.service': service ? {} : {$regex: /.*/} },
           ],
         },
       },
@@ -104,7 +104,7 @@ class StylistController {
         msg: '获取列表成功',
       })
     } else {
-      ctx.body = hints.FINDFAIL()
+      ctx.body = hints.FINDFAIL({msg: '获取失败'})
     }
   }
 }

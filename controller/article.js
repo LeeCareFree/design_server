@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-10 14:46:27
- * @LastEditTime: 2021-04-05 16:05:53
+ * @LastEditTime: Sat Apr 10 2021 16:20:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\article.js
@@ -527,7 +527,7 @@ class ArticleController {
         msg: '获取文章列表成功',
       })
     } else {
-      ctx.body = hints.FINDFAIL()
+      ctx.body = hints.FINDFAIL({msg: '获取失败'})
     }
   }
 }

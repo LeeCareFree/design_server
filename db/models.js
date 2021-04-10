@@ -1,16 +1,16 @@
 /*
  * @Author: your name
  * @Date: 2020-10-30 17:13:51
- * @LastEditTime: Fri Apr 09 2021 17:26:03
+ * @LastEditTime: Sat Apr 10 2021 14:43:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \blueSpace_server\db\models.js
  */
 module.exports = {
-	admin: {
-		username: String,
-		password: String
-	},
+  admin: {
+    username: String,
+    password: String,
+  },
   //用户表
   user: {
     uid: String,
@@ -18,14 +18,14 @@ module.exports = {
     nickname: String,
     password: String,
     avatar: String,
-		gender: Number,
+    gender: Number,
     introduction: String, // 介绍
     city: String, // 所在城市， 服务地区
     bgimg: String, // 默认背景图
-		identity: {
-			type: String,
-			default: "user"
-		}, // 身份: user、stylist、decoCompany
+    identity: {
+      type: String,
+      default: 'user',
+    }, // 身份: user、stylist、decoCompany
     likeArr: {
       type: Array,
       default: [],
@@ -90,13 +90,13 @@ module.exports = {
   userinfo: {
     uid: String,
     city: String,
-		progress: String, // 装修进度
-		doorModel: String, // 户型
-		area: String, // 面积
-		populace: String, // 人口
-		cost: String, // 预算
-		beginTime: String, //开始装修时间
-		checkInTime: String, // 入住时间
+    progress: String, // 装修进度
+    doorModel: String, // 户型
+    area: String, // 面积
+    populace: String, // 人口
+    cost: String, // 预算
+    beginTime: String, //开始装修时间
+    checkInTime: String, // 入住时间
   },
   decorateinfo: {
     uid: String,
@@ -109,10 +109,11 @@ module.exports = {
   },
   message: {
     uid: String,
-    messlist: Array
+    messlist: Array,
   },
   messdetail: {
     uid2: String,
-    detaillist: Array
-  }
+    detaillist: Array,
+    sum: Number,
+  },
 }
