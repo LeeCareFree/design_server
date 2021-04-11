@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 16:50:57
- * @LastEditTime: 2021-04-11 15:52:09
+ * @LastEditTime: 2021-04-11 16:40:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\middleware\socket.js
@@ -129,20 +129,20 @@ module.exports = (socket) => {
       chatid: guid,
     })
     // 将当前接收方的消息列表中，和发送方的聊天的 messNum 给清零
-    await Message.findOne({ uid: guid }).then((res) => {
+    await Message.findOne({ uid }).then((res) => {
       let getlist = res.messlist
       getlist.map((item) => {
-        if (item.uid === uid) {
+        if (item.uid === guid) {
           item.messNum ? (item.messNum = 0) : ''
         }
       })
-      return Message.updateOne({ uid: guid }, { detaillist: getlist })
+      return Message.updateOne({ uid: uid }, { detaillist: getlist })
     })
   })
 
   // 离开对话框
   socket.on('leaveChat', async ({ uid }) => {
-    if (usocket[uid].chatid) {
+    if (usocket[uid] && usocket[uid].chatid) {
       delete usocket[uid].chatid
     }
   })
@@ -193,7 +193,7 @@ module.exports = (socket) => {
       let messRes = getMessageList(guid)
       // 通知接收方更新列表
       usocket[guid].emit('getMessageList', {
-        messagelist: messRes.list,
+        messlist: messRes.list,
         sum: messRes.sum,
       })
 
@@ -214,7 +214,7 @@ module.exports = (socket) => {
     let messRes = await getMessageList(uid)
     if (uid in usocket) {
       usocket[uid].emit('getMessageList', {
-        messagelist: messRes.list,
+        messlist: messRes.list,
         sum: messRes.sum,
       })
     }
