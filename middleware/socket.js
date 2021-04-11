@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 16:50:57
- * @LastEditTime: Sat Apr 10 2021 17:50:54
+ * @LastEditTime: 2021-04-11 12:04:25
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\middleware\socket.js
@@ -37,6 +37,14 @@ let messageListFunc = async (uid, guid, item) => {
   await Message.findOne({ uid }).then((res) => {
     if (res) {
       let list = res.messlist
+      // 查看是否存在 messNum
+      list.map((lis) => {
+        if (lis.uid === guid) {
+          if (lis.messNum) {
+            Object.assign(item, { messNum: lis.messNum })
+          }
+        }
+      })
       // 如列表中存在该uid，将其提到首位
       let i = list.findIndex((val) => val.uid === guid)
       if (i !== -1) {
@@ -87,13 +95,15 @@ let messNumAdd = async (guid, uid) => {
     let list = res.messlist
     list.map((item) => {
       if (item.uid === uid) {
+        console.log(item)
         if (!item.messNum) {
           item.messNum = 1
+        } else {
+          item.messNum += 1
         }
-        item.messNum += 1
       }
     })
-    return Message.updateOne({ uid: guid }, { detaillist: list })
+    return Message.updateOne({ uid: guid }, { messlist: list })
   })
 }
 
@@ -128,7 +138,7 @@ module.exports = (socket) => {
   })
 
   // 离开对话框
-  socket.on('leaveChat', ({ uid }) => {
+  socket.on('leaveChat', async ({ uid }) => {
     if (usocket[uid].chatid) {
       delete usocket[uid].chatid
     }
@@ -160,10 +170,10 @@ module.exports = (socket) => {
 
     // 给收信息方(g)的消息列表里添加发送方的信息
     // guid, uid
-    messageListFunc(guid, uid, sendItem)
+    await messageListFunc(guid, uid, sendItem)
     // 给发送方(s)的消息列表里添加收信息方的信息
     // uid, guid
-    messageListFunc(uid, guid, getItem)
+    await messageListFunc(uid, guid, getItem)
 
     // 给对话框两位创建两个消息详情表
     messDetailFunc(uid, guid, sendItem)
@@ -181,14 +191,16 @@ module.exports = (socket) => {
       // 通知接收方更新列表
       usocket[guid].emit('getMessageList', messagelist)
 
+      usocket[guid].emit('getMessageDetail', sendItem)
+
       // 接收方在线，且不在对话框
       // usocket中的 chatid 中没有发送方的uid
       if (!usocket[guid].chatid || usocket[guid].chatid !== uid) {
-        messNumAdd(guid, uid)
+        await messNumAdd(guid, uid)
       }
     } else {
       // 接收方不在线
-      messNumAdd(guid, uid)
+      await messNumAdd(guid, uid)
     }
   })
 
