@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: Sat Apr 10 2021 13:39:13
- * @LastEditTime: Sat Apr 10 2021 19:17:09
+ * @LastEditTime: 2021-04-11 13:13:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\message.js
@@ -38,7 +38,12 @@ class MessageController {
       })
       console.log('result:', result)
       if (result) {
-        ctx.body = result
+        ctx.body = hints.SUCCESS({
+          data: {
+            result,
+          },
+          msg: '获取聊天详情成功！',
+        })
       } else {
         ctx.body = hints.FINDFAIL({ msg: '查询失败' })
       }
@@ -57,8 +62,11 @@ class MessageController {
         msg: '获取消息列表总数成功！',
       })
     } else {
-      ctx.body = hints.FINDFAIL({
-        msg: '获取失败',
+      ctx.body = hints.SUCCESS({
+        data: {
+          sum: 0,
+        },
+        msg: '获取消息列表总数成功！',
       })
     }
   }
