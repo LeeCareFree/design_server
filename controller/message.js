@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: Sat Apr 10 2021 13:39:13
- * @LastEditTime: 2021-04-11 13:13:12
+ * @LastEditTime: 2021-04-11 13:20:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\message.js
@@ -39,9 +39,7 @@ class MessageController {
       console.log('result:', result)
       if (result) {
         ctx.body = hints.SUCCESS({
-          data: {
-            result,
-          },
+          data: result,
           msg: '获取聊天详情成功！',
         })
       } else {
