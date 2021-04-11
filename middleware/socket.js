@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 16:50:57
- * @LastEditTime: 2021-04-11 16:40:03
+ * @LastEditTime: 2021-04-11 20:02:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\middleware\socket.js
@@ -16,18 +16,24 @@ const usocket = {},
 
 let getMessageList = async (uid) => {
   let result = await Message.findOne({ uid })
-  if (!result) return []
   let sum = 0
-  let list = result.messlist
-  list.forEach((item) => {
-    if (item.messNum) {
-      sum += item.messNum
-    }
-    Object.assign(item, {
-      time: formDate(item.time),
+  if (result) {
+    let list = result.messlist
+    list.forEach((item) => {
+      if (item.messNum) {
+        sum += item.messNum
+      }
+      Object.assign(item, {
+        time: formDate(item.time),
+      })
     })
-  })
-  return { list, sum }
+    return { list, sum }
+  } else {
+    return {
+      list: [],
+      sum,
+    }
+  }
 }
 
 /**
@@ -125,19 +131,34 @@ module.exports = (socket) => {
 
   // 该用户进入对话框，在该用户的socket里加入一个对方uid的属性
   socket.on('enterChat', async ({ uid, guid }) => {
-    Object.assign(usocket[uid], {
-      chatid: guid,
-    })
+    if (usocket[uid]) {
+      Object.assign(usocket[uid], {
+        chatid: guid,
+      })
+    }
     // 将当前接收方的消息列表中，和发送方的聊天的 messNum 给清零
-    await Message.findOne({ uid }).then((res) => {
-      let getlist = res.messlist
-      getlist.map((item) => {
-        if (item.uid === guid) {
-          item.messNum ? (item.messNum = 0) : ''
+    await Message.findOne({ uid })
+      .then((res) => {
+        if (!res) return
+        let messlist = res.messlist
+        messlist.map((item) => {
+          if (item.uid === guid) {
+            item.messNum ? (item.messNum = 0) : ''
+          }
+        })
+        return Message.updateOne({ uid: uid }, { messlist })
+      })
+      .then(async (res) => {
+        if (res) {
+          let messRes = await getMessageList(uid)
+          if (uid in usocket) {
+            usocket[uid].emit('getMessageList', {
+              messlist: messRes.list,
+              sum: messRes.sum,
+            })
+          }
         }
       })
-      return Message.updateOne({ uid: uid }, { detaillist: getlist })
-    })
   })
 
   // 离开对话框
@@ -148,7 +169,7 @@ module.exports = (socket) => {
   })
 
   socket.on('sendMessage', async (res) => {
-    let { uid, guid, message } = res
+    let { uid, guid, message, endTime } = res
 
     let sendUser = await User.findOne({ uid }, { nickname: 1, avatar: 1 })
     let getUser = await User.findOne({ uid: guid }, { nickname: 1, avatar: 1 })
@@ -178,18 +199,16 @@ module.exports = (socket) => {
     // uid, guid
     await messageListFunc(uid, guid, getItem)
 
+    // 用于在聊天界面显示时间
+    if (endTime) {
+      Object.assign(sendItem, { endTime })
+    }
+
     // 给对话框两位创建两个消息详情表
-    messDetailFunc(uid, guid, sendItem)
-    messDetailFunc(guid, uid, sendItem)
+    await messDetailFunc(uid, guid, sendItem)
+    await messDetailFunc(guid, uid, sendItem)
 
     if (guid in usocket) {
-      console.log('sendItem:', sendItem)
-      usocket[guid].emit(
-        'getMessage',
-        Object.assign(sendItem, {
-          time: formDate(sendItem.time),
-        })
-      )
       let messRes = getMessageList(guid)
       // 通知接收方更新列表
       usocket[guid].emit('getMessageList', {
