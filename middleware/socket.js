@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 16:50:57
- * @LastEditTime: 2021-04-11 12:04:25
+ * @LastEditTime: 2021-04-11 12:10:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\middleware\socket.js
@@ -95,7 +95,6 @@ let messNumAdd = async (guid, uid) => {
     let list = res.messlist
     list.map((item) => {
       if (item.uid === uid) {
-        console.log(item)
         if (!item.messNum) {
           item.messNum = 1
         } else {
