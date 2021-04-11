@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 16:50:57
- * @LastEditTime: 2021-04-11 12:10:17
+ * @LastEditTime: 2021-04-11 15:52:09
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\middleware\socket.js
@@ -17,13 +17,17 @@ const usocket = {},
 let getMessageList = async (uid) => {
   let result = await Message.findOne({ uid })
   if (!result) return []
+  let sum = 0
   let list = result.messlist
   list.forEach((item) => {
+    if (item.messNum) {
+      sum += item.messNum
+    }
     Object.assign(item, {
       time: formDate(item.time),
     })
   })
-  return list
+  return { list, sum }
 }
 
 /**
@@ -186,9 +190,12 @@ module.exports = (socket) => {
           time: formDate(sendItem.time),
         })
       )
-      let messagelist = getMessageList(guid)
+      let messRes = getMessageList(guid)
       // 通知接收方更新列表
-      usocket[guid].emit('getMessageList', messagelist)
+      usocket[guid].emit('getMessageList', {
+        messagelist: messRes.list,
+        sum: messRes.sum,
+      })
 
       usocket[guid].emit('getMessageDetail', sendItem)
 
@@ -204,9 +211,12 @@ module.exports = (socket) => {
   })
 
   socket.on('messageList', async (uid) => {
-    let messagelist = await getMessageList(uid)
+    let messRes = await getMessageList(uid)
     if (uid in usocket) {
-      usocket[uid].emit('getMessageList', { messlist: messagelist })
+      usocket[uid].emit('getMessageList', {
+        messagelist: messRes.list,
+        sum: messRes.sum,
+      })
     }
   })
 
