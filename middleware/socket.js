@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 16:50:57
- * @LastEditTime: 2021-04-11 20:02:38
+ * @LastEditTime: 2021-04-11 20:11:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\middleware\socket.js
@@ -169,7 +169,7 @@ module.exports = (socket) => {
   })
 
   socket.on('sendMessage', async (res) => {
-    let { uid, guid, message, endTime } = res
+    let { uid, guid, message, time, endTime } = res
 
     let sendUser = await User.findOne({ uid }, { nickname: 1, avatar: 1 })
     let getUser = await User.findOne({ uid: guid }, { nickname: 1, avatar: 1 })
@@ -181,7 +181,7 @@ module.exports = (socket) => {
       nickname: sendUser.nickname,
       avatar: sendUser.avatar,
       message,
-      time: new Date() * 1,
+      time,
     }
 
     let getItem = {
@@ -189,7 +189,7 @@ module.exports = (socket) => {
       nickname: getUser.nickname,
       avatar: getUser.avatar,
       message,
-      time: new Date() * 1,
+      time,
     }
 
     // 给收信息方(g)的消息列表里添加发送方的信息
