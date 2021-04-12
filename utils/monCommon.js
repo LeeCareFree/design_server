@@ -91,6 +91,10 @@ let compareDesignFee = (fee) => {
   return statement
 }
 
+let sortStylist = () => {
+  
+}
+
 module.exports = {
   MongoUserAcountInfo,
   compareDesignFee

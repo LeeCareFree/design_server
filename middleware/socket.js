@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 16:50:57
- * @LastEditTime: 2021-04-11 20:11:27
+ * @LastEditTime: 2021-04-12 15:05:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\middleware\socket.js
@@ -141,20 +141,23 @@ module.exports = (socket) => {
       .then((res) => {
         if (!res) return
         let messlist = res.messlist
+        let numProsime
         messlist.map((item) => {
-          if (item.uid === guid) {
-            item.messNum ? (item.messNum = 0) : ''
+          if (item.uid === guid && item.messNum) {
+            item.messNum = 0
+            numProsime = Promise.resolve(item.messNum)
           }
         })
-        return Message.updateOne({ uid: uid }, { messlist })
+        let updatePromise = Message.updateOne({ uid: uid }, { messlist })
+        return Promise.all([numProsime, updatePromise])
       })
-      .then(async (res) => {
-        if (res) {
+      .then(async (resArr) => {
+        if (resArr && resArr[1].nModified) {
           let messRes = await getMessageList(uid)
           if (uid in usocket) {
             usocket[uid].emit('getMessageList', {
               messlist: messRes.list,
-              sum: messRes.sum,
+              sum: messRes.sum + resArr[0],
             })
           }
         }
@@ -192,6 +195,8 @@ module.exports = (socket) => {
       time,
     }
 
+    console.log(sendItem)
+
     // 给收信息方(g)的消息列表里添加发送方的信息
     // guid, uid
     await messageListFunc(guid, uid, sendItem)
@@ -209,8 +214,15 @@ module.exports = (socket) => {
     await messDetailFunc(guid, uid, sendItem)
 
     if (guid in usocket) {
-      let messRes = getMessageList(guid)
+      // 接收方在线，且不在对话框
+      // usocket中的 chatid 中没有发送方的uid
+      if (!usocket[guid].chatid || usocket[guid].chatid !== uid) {
+        await messNumAdd(guid, uid)
+      }
+
+      let messRes = await getMessageList(guid)
       // 通知接收方更新列表
+      console.log(messRes)
       usocket[guid].emit('getMessageList', {
         messlist: messRes.list,
         sum: messRes.sum,
@@ -218,11 +230,6 @@ module.exports = (socket) => {
 
       usocket[guid].emit('getMessageDetail', sendItem)
 
-      // 接收方在线，且不在对话框
-      // usocket中的 chatid 中没有发送方的uid
-      if (!usocket[guid].chatid || usocket[guid].chatid !== uid) {
-        await messNumAdd(guid, uid)
-      }
     } else {
       // 接收方不在线
       await messNumAdd(guid, uid)
