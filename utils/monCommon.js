@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-06 12:37:30
- * @LastEditTime: Fri Apr 09 2021 16:32:21
+ * @LastEditTime: 2021-04-12 15:50:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\utils\monCommon.js
@@ -91,11 +91,20 @@ let compareDesignFee = (fee) => {
   return statement
 }
 
-let sortStylist = () => {
-  
+let sortStylist = (sortObj) => {
+  let { time } = sortObj
+  let sort = {}
+  if (time) {
+    Object.assign(sort, {
+      createtime: -1,
+    })
+  }
+  console.log(sort)
+  return sort
 }
 
 module.exports = {
   MongoUserAcountInfo,
-  compareDesignFee
+  compareDesignFee,
+  sortStylist
 }

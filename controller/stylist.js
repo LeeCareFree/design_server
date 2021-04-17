@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-25 16:55:20
- * @LastEditTime: 2021-04-12 15:32:36
+ * @LastEditTime: 2021-04-12 15:50:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\shopping.js
@@ -11,7 +11,7 @@ const dbHelper = require('../db/dpHelper')
 const Article = dbHelper.getModel('article')
 let DecoInfo = dbHelper.getModel('decorateinfo')
 let User = dbHelper.getModel('user')
-let { compareDesignFee } = require('../utils/monCommon')
+let { compareDesignFee, sortStylist } = require('../utils/monCommon')
 
 class StylistController {
   constructor() {}
@@ -53,9 +53,7 @@ class StylistController {
         },
       },
       {
-        $sort: {
-          createtime: -1,
-        },
+        $sort: sortStylist({ time: 1 }),
       },
       {
         $skip: Number(page - 1) * Number(size),

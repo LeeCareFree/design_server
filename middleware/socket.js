@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-07 16:50:57
- * @LastEditTime: 2021-04-12 15:05:21
+ * @LastEditTime: 2021-04-17 15:33:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\middleware\socket.js
@@ -44,6 +44,7 @@ let getMessageList = async (uid) => {
  * @return {*}
  */
 let messageListFunc = async (uid, guid, item) => {
+  let newItem = Object.assign({}, item)
   await Message.findOne({ uid }).then((res) => {
     if (res) {
       let list = res.messlist
@@ -51,7 +52,7 @@ let messageListFunc = async (uid, guid, item) => {
       list.map((lis) => {
         if (lis.uid === guid) {
           if (lis.messNum) {
-            Object.assign(item, { messNum: lis.messNum })
+            Object.assign(newItem, { messNum: lis.messNum })
           }
         }
       })
@@ -59,13 +60,13 @@ let messageListFunc = async (uid, guid, item) => {
       let i = list.findIndex((val) => val.uid === guid)
       if (i !== -1) {
         list.splice(i, 1)
-        list.unshift(item)
+        list.unshift(newItem)
       } else {
-        list.unshift(item)
+        list.unshift(newItem)
       }
       return Message.updateOne({ uid }, { messlist: list })
     } else {
-      return Message.create({ uid, messlist: [item] })
+      return Message.create({ uid, messlist: [newItem] })
     }
   })
 }
@@ -229,7 +230,6 @@ module.exports = (socket) => {
       })
 
       usocket[guid].emit('getMessageDetail', sendItem)
-
     } else {
       // 接收方不在线
       await messNumAdd(guid, uid)
@@ -246,24 +246,16 @@ module.exports = (socket) => {
     }
   })
 
-  // socket.on('messageDetail', async (data) => {
-  //   let { uid, guid } = data
-  //   let result = await MessDetail.findOne({
-  //     uid2: uid + '&' + guid || guid + '&' + uid,
-  //   })
-
-  //   let list = result.detaillist ? result.detaillist : []
-  //   list.forEach((item) => {
-  //     Object.assign(item, {
-  //       time: formDate(item.time),
-  //     })
-  //   })
-  //   console.log(uid)
-  //   if (uid in usocket) {
-  //     console.log(result)
-  //     usocket[uid].emit('getMessageDetail', result)
-  //   }
-  // })
+  // 实时删除当前聊天会话
+  socket.on('deleteMess', async (data) => {
+    let { uid, guid } = data
+    await Message.updateOne(
+      { uid },
+      {
+        $pull: { messlist: { uid: guid } },
+      }
+    )
+  })
 
   socket.on('disconnect', function () {
     //移除

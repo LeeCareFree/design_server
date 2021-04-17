@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: Sat Apr 10 2021 13:39:13
- * @LastEditTime: 2021-04-11 13:20:02
+ * @LastEditTime: 2021-04-15 14:09:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \design_server\controller\message.js
@@ -65,6 +65,45 @@ class MessageController {
           sum: 0,
         },
         msg: '获取消息列表总数成功！',
+      })
+    }
+  }
+
+  /**
+   * @description: 删除详情列表的聊天记录
+   * @param {*} ctx
+   * @return {*}
+   */  
+  async deleteMessDetail(ctx) {
+    // way => all 、 single
+    let { uid, guid, index, way } = ctx.request.body
+    let uid2 = uid + '&' + guid
+    // let len = index.length
+    let result
+    if (way === 'all') {
+      result = await MessDetail.deleteOne({ uid2 })
+    } else {
+      result = await MessDetail.findOne({ uid2 }).then((res) => {
+        let detailList = res.detaillist
+        detailList.splice(index, 1)
+        return MessDetail.updateOne(
+          { uid2 },
+          {
+            detaillist: detailList,
+            $inc: { sum: -1 },
+          }
+        )
+      })
+    }
+
+    // console.log(result)
+    if (result.nModified || result.deletedCount) {
+      ctx.body = hints.SUCCESS({
+        msg: '删除成功！'
+      })
+    } else {
+      ctx.body = hints.UPDATE({
+        msg: '删除失败！'
       })
     }
   }
