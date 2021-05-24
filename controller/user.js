@@ -26,7 +26,9 @@ const {
   deleteFilePublic,
   removeEmpty,
 } = require('../utils/utils')
-const { MongoUserAcountInfo } = require('../utils/monCommon')
+const {
+  MongoUserAcountInfo
+} = require('../utils/monCommon')
 /**
  * user Controller
  * Post login
@@ -58,22 +60,25 @@ class UserController {
    */
   async login(ctx, next) {
     try {
-      const { username, password } = xss(ctx.request.body)
+      const {
+        username,
+        password
+      } = xss(ctx.request.body)
       var result = await User.findOne({
         username: username,
       })
       if (result) {
-        const { uid } = result
+        const {
+          uid
+        } = result
         if (this.mdsPassword(password) != result.password) {
           ctx.body = hints.LOGIN_PASSWORD_WRONG
         } else {
-          const token = jwt.sign(
-            {
+          const token = jwt.sign({
               name: username,
               uid: uid,
             },
-            this.secret,
-            {
+            this.secret, {
               expiresIn: '7d', //到期时间
             }
           )
@@ -103,7 +108,10 @@ class UserController {
    */
   async loginAdmin(ctx, next) {
     try {
-      const { username, password } = xss(ctx.request.body.data)
+      const {
+        username,
+        password
+      } = xss(ctx.request.body.data)
       var result = await Admin.findOne({
         username: username,
       })
@@ -111,12 +119,10 @@ class UserController {
         if (this.mdsPassword(password) != result.password) {
           ctx.body = hints.LOGIN_PASSWORD_WRONG
         } else {
-          const token = jwt.sign(
-            {
+          const token = jwt.sign({
               name: username,
             },
-            this.secret,
-            {
+            this.secret, {
               expiresIn: '7d', //到期时间
             }
           )
@@ -144,7 +150,11 @@ class UserController {
   async register(ctx) {
     try {
       ctx.append('content-type', 'application/json')
-      let { username, password, identity = 'user' } = xss(ctx.request.body)
+      let {
+        username,
+        password,
+        identity = 'user'
+      } = xss(ctx.request.body)
       const result = await User.findOne({
         username: username,
       })
@@ -173,9 +183,13 @@ class UserController {
 
         const result = await User.create(identityObj)
         if (identity === 'user') {
-          await UserInfo.create({ uid })
+          await UserInfo.create({
+            uid
+          })
         } else {
-          await DecoInfo.create({ uid })
+          await DecoInfo.create({
+            uid
+          })
         }
 
         if (result) {
@@ -206,7 +220,9 @@ class UserController {
    */
   async getAccountInfo(ctx) {
     try {
-      const { uid } = ctx.request.body
+      const {
+        uid
+      } = ctx.request.body
       let result = await MongoUserAcountInfo(uid)
       if (result) {
         ctx.body = hints.SUCCESS({
@@ -291,7 +307,9 @@ class UserController {
       // 移除空属性
       removeEmpty(userObj)
 
-      let result = await User.updateOne({ uid }, userObj)
+      let result = await User.updateOne({
+        uid
+      }, userObj)
 
       if (result.nModified) {
         let userAcountInfo = await MongoUserAcountInfo(uid)
@@ -313,21 +331,21 @@ class UserController {
     try {
       let {
         identity = 'user',
-        uid,
-        city,
-        cost,
-        progress,
-        doorModel,
-        area,
-        populace,
-        beginTime,
-        checkInTime,
+          uid,
+          city,
+          cost,
+          progress,
+          doorModel,
+          area,
+          populace,
+          beginTime,
+          checkInTime,
 
-        address, // 详细地址
-        stylearr, // 风格
-        designfee, // 费用
-        phone, // 联系方式
-        service, // 服务介绍
+          address, // 详细地址
+          stylearr, // 风格
+          designfee, // 费用
+          phone, // 联系方式
+          service, // 服务介绍
       } = ctx.request.body
 
       let result
@@ -344,10 +362,14 @@ class UserController {
             checkInTime,
           }
           removeEmpty(userInfoObj)
-          result = await UserInfo.updateOne({ uid }, userInfoObj).then(
+          result = await UserInfo.updateOne({
+            uid
+          }, userInfoObj).then(
             (res) => {
               if (res.nModified) {
-                return UserInfo.findOne({ uid })
+                return UserInfo.findOne({
+                  uid
+                })
               }
             }
           )
@@ -363,10 +385,14 @@ class UserController {
           }
           removeEmpty(stylistInfo)
           console.log(stylistInfo)
-          result = await DecoInfo.updateOne({ uid }, stylistInfo).then(
+          result = await DecoInfo.updateOne({
+            uid
+          }, stylistInfo).then(
             (res) => {
               if (res.nModified) {
-                return DecoInfo.findOne({ uid })
+                return DecoInfo.findOne({
+                  uid
+                })
               }
             }
           )
@@ -389,15 +415,23 @@ class UserController {
 
   async getDetailInfo(ctx, next) {
     try {
-      let { uid, identity = 'user' } = ctx.request.body
+      let {
+        uid,
+        identity = 'user'
+      } = ctx.request.body
       let result
-
       switch (identity) {
         case 'user':
-          result = await UserInfo.findOne({ uid })
+          result = await UserInfo.findOne({
+            uid
+          })
           break
-
+        case 'stylist':
+          result = await DecoInfo.findOne({
+            uid
+          })
         default:
+
           break
       }
       if (result) {
@@ -417,8 +451,15 @@ class UserController {
    * @param {*} ctx
    */
   async getListByArr(ctx) {
-    let { uid, arrname = 'production', page = 1, size = 10 } = ctx.request.body
-    let result = await User.findOne({ uid })
+    let {
+      uid,
+      arrname = 'production',
+      page = 1,
+      size = 10
+    } = ctx.request.body
+    let result = await User.findOne({
+        uid
+      })
       .then((res) => {
         switch (arrname) {
           case 'production':
@@ -438,10 +479,11 @@ class UserController {
           case 'production':
           case 'like':
           case 'collection':
-            return Article.aggregate([
-              {
+            return Article.aggregate([{
                 $match: {
-                  aid: { $in: arrData },
+                  aid: {
+                    $in: arrData
+                  },
                 },
               },
               {
@@ -458,7 +500,9 @@ class UserController {
                   as: 'user',
                 },
               },
-              { $unwind: '$user' },
+              {
+                $unwind: '$user'
+              },
               {
                 $project: {
                   _id: 0,
@@ -481,7 +525,11 @@ class UserController {
             ])
           case 'follow':
           case 'fans':
-            return User.find({ uid: { $in: arrData } }).then((users) => {
+            return User.find({
+              uid: {
+                $in: arrData
+              }
+            }).then((users) => {
               if (users) {
                 let userArr = []
                 // 每个用户
@@ -495,13 +543,13 @@ class UserController {
                   let followArr = user.followArr
                   let fansArr = user.fansArr
                   if (arrname === 'fans') {
-                    fansArr.indexOf(uid) >= 0
-                      ? (u.isFocus = true)
-                      : (u.isFocus = false)
+                    fansArr.indexOf(uid) >= 0 ?
+                      (u.isFocus = true) :
+                      (u.isFocus = false)
                   } else if (arrname === 'follow') {
-                    followArr.indexOf(uid) >= 0
-                      ? (u.isFocus = true)
-                      : (u.isFocus = false)
+                    followArr.indexOf(uid) >= 0 ?
+                      (u.isFocus = true) :
+                      (u.isFocus = false)
                   }
                   userArr.push(u)
                 })
@@ -514,11 +562,15 @@ class UserController {
       })
     if (result) {
       ctx.body = hints.SUCCESS({
-        data: arrname === 'follow' || arrname === 'fans' ? { result } : result,
+        data: arrname === 'follow' || arrname === 'fans' ? {
+          result
+        } : result,
         msg: '获取成功',
       })
     } else {
-      ctx.body = hints.FINDFAIL({ msg: '获取失败' })
+      ctx.body = hints.FINDFAIL({
+        msg: '获取失败'
+      })
     }
   }
 
@@ -529,7 +581,11 @@ class UserController {
    * @return {*}
    */
   async addOperation(ctx) {
-    let { aid, uid, type } = ctx.request.body
+    let {
+      aid,
+      uid,
+      type
+    } = ctx.request.body
 
     if (!aid || !uid || !type) {
       return (ctx.body = hints.PARAM_ERROR)
@@ -539,35 +595,45 @@ class UserController {
       returnStatement = ['点赞', '收藏']
     switch (type) {
       case 0:
-        userResult = await User.updateOne(
-          { uid },
-          { $addToSet: { likeArr: aid } }
-        )
+        userResult = await User.updateOne({
+          uid
+        }, {
+          $addToSet: {
+            likeArr: aid
+          }
+        })
         if (userResult.nModified)
-          await Article.updateOne(
-            { aid },
-            {
-              $inc: { like: 1 },
-            }
-          )
+          await Article.updateOne({
+            aid
+          }, {
+            $inc: {
+              like: 1
+            },
+          })
         break
       case 1:
-        userResult = await User.updateOne(
-          { uid },
-          { $addToSet: { collArr: aid } }
-        )
+        userResult = await User.updateOne({
+          uid
+        }, {
+          $addToSet: {
+            collArr: aid
+          }
+        })
         if (userResult.nModified)
-          await Article.updateOne(
-            { aid },
-            {
-              $inc: { coll: 1 },
-            }
-          )
+          await Article.updateOne({
+            aid
+          }, {
+            $inc: {
+              coll: 1
+            },
+          })
         break
     }
 
     if (userResult.nModified) {
-      ctx.body = hints.SUCCESS({ msg: `${returnStatement[type]}成功！` })
+      ctx.body = hints.SUCCESS({
+        msg: `${returnStatement[type]}成功！`
+      })
     } else {
       ctx.body = hints.FRONT_ALREADY({
         msg: `您已${returnStatement[type]}成功！`,
@@ -581,7 +647,11 @@ class UserController {
    * @return {*}
    */
   async cancelOperation(ctx) {
-    let { aid, uid, type } = ctx.request.body
+    let {
+      aid,
+      uid,
+      type
+    } = ctx.request.body
 
     if (!aid || !uid || !type) {
       return (ctx.body = hints.PARAM_ERROR)
@@ -591,35 +661,57 @@ class UserController {
       returnStatement = ['点赞', '收藏']
     switch (type) {
       case 0:
-        userResult = await User.updateOne(
-          { uid: uid },
-          { $pull: { likeArr: { $in: [aid] } } }
-        )
+        userResult = await User.updateOne({
+          uid: uid
+        }, {
+          $pull: {
+            likeArr: {
+              $in: [aid]
+            }
+          }
+        })
         if (userResult.nModified)
-          await Article.find({ aid }).update(
-            {
-              like: { $gt: 0 },
+          await Article.find({
+            aid
+          }).update({
+            like: {
+              $gt: 0
             },
-            { $inc: { like: -1 } }
-          )
+          }, {
+            $inc: {
+              like: -1
+            }
+          })
         break
       case 1:
-        userResult = await User.updateOne(
-          { uid: uid },
-          { $pull: { collArr: { $in: [aid] } } }
-        )
+        userResult = await User.updateOne({
+          uid: uid
+        }, {
+          $pull: {
+            collArr: {
+              $in: [aid]
+            }
+          }
+        })
         if (userResult.nModified)
-          await Article.find({ aid }).update(
-            {
-              coll: { $gt: 0 },
+          await Article.find({
+            aid
+          }).update({
+            coll: {
+              $gt: 0
             },
-            { $inc: { coll: -1 } }
-          )
+          }, {
+            $inc: {
+              coll: -1
+            }
+          })
         break
     }
 
     if (userResult.nModified) {
-      ctx.body = hints.SUCCESS({ msg: `取消${returnStatement[type]}成功！` })
+      ctx.body = hints.SUCCESS({
+        msg: `取消${returnStatement[type]}成功！`
+      })
     } else {
       ctx.body = hints.FRONT_ALREADY({
         msg: `您已取消${returnStatement[type]}！`,
@@ -633,7 +725,11 @@ class UserController {
    * @return {*}
    */
   async queryStatus(ctx) {
-    let { aid, uid, type } = ctx.request.body
+    let {
+      aid,
+      uid,
+      type
+    } = ctx.request.body
     if (!aid || !uid || !type) {
       return (ctx.body = hints.PARAM_ERROR)
     }
@@ -643,13 +739,25 @@ class UserController {
 
     switch (type) {
       case 0:
-        result = await User.find({ uid }).findOne({
-          likeArr: { $elemMatch: { $eq: aid } },
+        result = await User.find({
+          uid
+        }).findOne({
+          likeArr: {
+            $elemMatch: {
+              $eq: aid
+            }
+          },
         })
         break
       case 1:
-        result = await User.find({ uid }).findOne({
-          collArr: { $elemMatch: { $eq: aid } },
+        result = await User.find({
+          uid
+        }).findOne({
+          collArr: {
+            $elemMatch: {
+              $eq: aid
+            }
+          },
         })
         break
     }
@@ -666,19 +774,33 @@ class UserController {
    * @return {*}
    */
   async addFollow(ctx) {
-    let { muid, huid } = ctx.request.body
+    let {
+      muid,
+      huid
+    } = ctx.request.body
     if (!muid || !huid) {
       return (ctx.body = hints.PARAM_ERROR)
     }
     // 关注者存被关注者的uid
-    let myResult = await User.updateOne(
-      { uid: muid },
-      { $addToSet: { followArr: huid } }
-    )
+    let myResult = await User.updateOne({
+      uid: muid
+    }, {
+      $addToSet: {
+        followArr: huid
+      }
+    })
     // 被关注者存关注者uid
-    await User.updateOne({ uid: huid }, { $addToSet: { fansArr: muid } })
+    await User.updateOne({
+      uid: huid
+    }, {
+      $addToSet: {
+        fansArr: muid
+      }
+    })
     if (myResult.nModified) {
-      ctx.body = hints.SUCCESS({ msg: '关注成功！' })
+      ctx.body = hints.SUCCESS({
+        msg: '关注成功！'
+      })
     } else {
       ctx.body = hints.FRONT_ALREADY({
         msg: `您已关注该用户！`,
@@ -692,19 +814,37 @@ class UserController {
    * @return {*}
    */
   async cancelFollow(ctx) {
-    let { muid, huid } = ctx.request.body
+    let {
+      muid,
+      huid
+    } = ctx.request.body
     if (!muid || !huid) {
       return (ctx.body = hints.PARAM_ERROR)
     }
     // 关注者删除被关注者的uid
-    let myResult = await User.updateOne(
-      { uid: muid },
-      { $pull: { followArr: { $in: [huid] } } }
-    )
+    let myResult = await User.updateOne({
+      uid: muid
+    }, {
+      $pull: {
+        followArr: {
+          $in: [huid]
+        }
+      }
+    })
     // 被关注者删除关注者uid
-    await User.updateOne({ uid: huid }, { $pull: { fansArr: { $in: [muid] } } })
+    await User.updateOne({
+      uid: huid
+    }, {
+      $pull: {
+        fansArr: {
+          $in: [muid]
+        }
+      }
+    })
     if (myResult.nModified) {
-      ctx.body = hints.SUCCESS({ msg: '取消关注成功！' })
+      ctx.body = hints.SUCCESS({
+        msg: '取消关注成功！'
+      })
     } else {
       ctx.body = hints.FRONT_ALREADY({
         msg: `您已取消关注该用户！`,
@@ -718,13 +858,22 @@ class UserController {
    * @return {*}
    */
   async queryFollow(ctx) {
-    let { muid, huid } = ctx.request.body
+    let {
+      muid,
+      huid
+    } = ctx.request.body
     if (!muid || !huid) {
       return (ctx.body = hints.PARAM_ERROR)
     }
 
-    let result = await User.find({ uid: muid }).findOne({
-      followArr: { $elemMatch: { $eq: huid } },
+    let result = await User.find({
+      uid: muid
+    }).findOne({
+      followArr: {
+        $elemMatch: {
+          $eq: huid
+        }
+      },
     })
 
     ctx.body = hints.SUCCESS({

@@ -24,7 +24,7 @@ class StylistController {
       stylearr = [],
       service = [],
     } = ctx.request.body
-    console.log(designfee)
+    console.log(ctx.request.body)
 
     let result = await User.aggregate([
       {

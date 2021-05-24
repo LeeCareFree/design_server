@@ -30,6 +30,7 @@ let MongoUserAcountInfo = (uid) => {
         collNum: res.collArr.length,
         fansNum: res.fansArr.length,
         followNum: res.followArr.length,
+        identity: res.identity
       })
       return Article.aggregate([
         {
@@ -64,6 +65,8 @@ let compareDesignFee = (fee) => {
   let statement
   switch (fee) {
     case '不限':
+      statement = { $gt: 0 }
+      break
     case undefined:
       statement = { $gt: 0 }
       break
