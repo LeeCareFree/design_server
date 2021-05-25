@@ -11,8 +11,8 @@ createHttpServer();
 function createHttpServer() {
     http.createServer(function (req, res) {
         downloadFile(res);
-    }).listen(PORT, '8.129.214.128');
-    console.log('Server running at http://8.129.214.128:' + PORT + '...');
+    }).listen(PORT, 'localhost');
+    console.log('Server running at http://localhost:' + PORT + '...');
 }
 
 /*
