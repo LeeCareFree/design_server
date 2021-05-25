@@ -1,7 +1,7 @@
 var fs = require('fs');
 var http = require('http');
 
-var PORT = 8081;
+var PORT = 3000;
 
 createHttpServer();
 
@@ -11,8 +11,8 @@ createHttpServer();
 function createHttpServer() {
     http.createServer(function (req, res) {
         downloadFile(res);
-    }).listen(PORT, '127.0.0.1');
-    console.log('Server running at http://127.0.0.1:' + PORT + '...');
+    }).listen(PORT, '8.129.214.128');
+    console.log('Server running at http://8.129.214.128:' + PORT + '...');
 }
 
 /*
